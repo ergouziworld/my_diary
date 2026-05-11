@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="My Diary">
+  <rect width="128" height="128" rx="24" fill="#17211b"/>
+  <path d="M34 32h60v64H34z" fill="#fbfcf8"/>
+  <path d="M46 48h36M46 62h28M46 76h34" stroke="#2f6f5e" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="92" cy="88" r="16" fill="#c55f38"/>
+</svg>

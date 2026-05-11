@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eef3ee" />
+    <title>My Diary</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div>
+            <h1>My Diary</h1>
+            <p>生活收集箱</p>
+          </div>
+        </div>
+        <nav class="nav-tabs" aria-label="页面">
+          <button class="nav-tab active" data-view="today" type="button">今天</button>
+          <button class="nav-tab" data-view="timeline" type="button">时间线</button>
+          <button class="nav-tab" data-view="tasks" type="button">任务</button>
+          <button class="nav-tab" data-view="money" type="button">账本</button>
+          <button class="nav-tab" data-view="insights" type="button">分析</button>
+        </nav>
+        <section class="settings-panel">
+          <h2>AI 接口</h2>
+          <label>
+            Provider
+            <select id="providerSelect">
+              <option value="local">本地规则</option>
+              <option value="gemini">Gemini</option>
+              <option value="openrouter">OpenRouter</option>
+            </select>
+          </label>
+          <label>
+            API Key
+            <input id="apiKeyInput" type="password" placeholder="可先不填" autocomplete="off" />
+          </label>
+          <button id="saveSettingsBtn" class="secondary-btn" type="button">保存配置</button>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="dateLabel"></p>
+            <h2 id="viewTitle">今天</h2>
+          </div>
+          <div class="topbar-actions">
+            <button id="exportBtn" class="icon-btn" title="导出数据" aria-label="导出数据" type="button">↓</button>
+            <button id="importBtn" class="icon-btn" title="导入数据" aria-label="导入数据" type="button">↑</button>
+            <input id="importFile" type="file" accept="application/json" hidden />
+          </div>
+        </header>
+
+        <section class="composer">
+          <div class="composer-head">
+            <h3>随手记</h3>
+            <span id="storageStatus">本地保存</span>
+          </div>
+          <textarea id="entryInput" rows="5" placeholder="例如：今天星巴克花了39，有点焦虑，明天10点记得给客户打电话。"></textarea>
+          <div class="composer-media">
+            <label class="file-picker">
+              <input id="photoInput" type="file" accept="image/*" multiple />
+              添加图片
+            </label>
+            <div id="photoPreview" class="photo-preview" aria-live="polite"></div>
+          </div>
+          <div class="composer-actions">
+            <div class="quick-types" aria-label="快捷类型">
+              <button type="button" data-template="今天 ">日记</button>
+              <button type="button" data-template="明天记得 ">任务</button>
+              <button type="button" data-template="花了 ">记账</button>
+              <button type="button" data-template="现在感觉 ">心情</button>
+            </div>
+            <button id="saveEntryBtn" class="primary-btn" type="button">保存并整理</button>
+          </div>
+        </section>
+
+        <section id="content" class="content" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <template id="entryTemplate">
+      <article class="entry-card">
+        <div class="entry-meta">
+          <span class="entry-time"></span>
+          <div class="entry-tags"></div>
+        </div>
+        <p class="entry-text"></p>
+        <div class="entry-photos"></div>
+        <div class="entry-breakdown"></div>
+        <button class="delete-btn" type="button">删除</button>
+      </article>
+    </template>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
