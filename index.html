@@ -3,97 +3,120 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#eef3ee" />
+    <meta name="theme-color" content="#f4f1ea" />
     <title>My Diary</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="主导航">
+    <div class="app">
+      <aside class="rail">
         <div class="brand">
-          <div class="brand-mark">M</div>
+          <div class="brand-icon">日</div>
           <div>
             <h1>My Diary</h1>
-            <p>生活收集箱</p>
+            <p>把生活先放进来</p>
           </div>
         </div>
-        <nav class="nav-tabs" aria-label="页面">
-          <button class="nav-tab active" data-view="today" type="button">今天</button>
-          <button class="nav-tab" data-view="timeline" type="button">时间线</button>
-          <button class="nav-tab" data-view="tasks" type="button">任务</button>
-          <button class="nav-tab" data-view="money" type="button">账本</button>
-          <button class="nav-tab" data-view="insights" type="button">分析</button>
+
+        <nav class="tabs" aria-label="主导航">
+          <button class="tab active" data-view="today" type="button">今日</button>
+          <button class="tab" data-view="timeline" type="button">时间线</button>
+          <button class="tab" data-view="tasks" type="button">任务</button>
+          <button class="tab" data-view="mood" type="button">心情</button>
+          <button class="tab" data-view="money" type="button">收支</button>
+          <button class="tab" data-view="photos" type="button">相册</button>
         </nav>
-        <section class="settings-panel">
-          <h2>AI 接口</h2>
-          <label>
-            Provider
-            <select id="providerSelect">
-              <option value="local">本地规则</option>
-              <option value="gemini">Gemini</option>
-              <option value="openrouter">OpenRouter</option>
-            </select>
-          </label>
-          <label>
-            API Key
-            <input id="apiKeyInput" type="password" placeholder="可先不填" autocomplete="off" />
-          </label>
-          <button id="saveSettingsBtn" class="secondary-btn" type="button">保存配置</button>
+
+        <section class="side-card">
+          <div class="status-line">
+            <span>本地数据库</span>
+            <strong id="dbStatus">启动中</strong>
+          </div>
+          <div class="status-line">
+            <span>记录数</span>
+            <strong id="entryCount">0</strong>
+          </div>
+          <div class="side-actions">
+            <button id="exportBtn" type="button">导出</button>
+            <button id="importBtn" type="button">导入</button>
+            <input id="importFile" type="file" accept="application/json" hidden />
+          </div>
         </section>
       </aside>
 
       <main class="main">
-        <header class="topbar">
+        <header class="top">
           <div>
-            <p class="eyebrow" id="dateLabel"></p>
-            <h2 id="viewTitle">今天</h2>
+            <p id="todayLabel" class="subtle"></p>
+            <h2 id="viewTitle">今日</h2>
           </div>
-          <div class="topbar-actions">
-            <button id="exportBtn" class="icon-btn" title="导出数据" aria-label="导出数据" type="button">↓</button>
-            <button id="importBtn" class="icon-btn" title="导入数据" aria-label="导入数据" type="button">↑</button>
-            <input id="importFile" type="file" accept="application/json" hidden />
-          </div>
+          <button id="saveBtn" class="primary" type="button">保存记录</button>
         </header>
 
-        <section class="composer">
-          <div class="composer-head">
-            <h3>随手记</h3>
-            <span id="storageStatus">本地保存</span>
-          </div>
-          <textarea id="entryInput" rows="5" placeholder="例如：今天星巴克花了39，有点焦虑，明天10点记得给客户打电话。"></textarea>
-          <div class="composer-media">
-            <label class="file-picker">
-              <input id="photoInput" type="file" accept="image/*" multiple />
-              添加图片
+        <section class="capture">
+          <textarea
+            id="textInput"
+            placeholder="随便写，不用分类。比如：今天下午很累，星巴克花了39，明天10点给客户打电话。"
+          ></textarea>
+
+          <div class="capture-grid">
+            <label>
+              心情
+              <select id="moodInput">
+                <option value="">自动判断</option>
+                <option value="开心">开心</option>
+                <option value="平静">平静</option>
+                <option value="疲惫">疲惫</option>
+                <option value="焦虑">焦虑</option>
+                <option value="低落">低落</option>
+                <option value="生气">生气</option>
+              </select>
             </label>
-            <div id="photoPreview" class="photo-preview" aria-live="polite"></div>
+            <label>
+              标签
+              <input id="tagInput" placeholder="工作, 学习, 家人" />
+            </label>
+            <label class="photo-picker">
+              图片
+              <input id="photoInput" type="file" accept="image/*" multiple />
+            </label>
           </div>
-          <div class="composer-actions">
-            <div class="quick-types" aria-label="快捷类型">
-              <button type="button" data-template="今天 ">日记</button>
-              <button type="button" data-template="明天记得 ">任务</button>
-              <button type="button" data-template="花了 ">记账</button>
-              <button type="button" data-template="现在感觉 ">心情</button>
-            </div>
-            <button id="saveEntryBtn" class="primary-btn" type="button">保存并整理</button>
-          </div>
+
+          <div id="preview" class="preview"></div>
+          <p id="saveHint" class="save-hint">数据只保存在当前浏览器。重要内容请定期导出备份。</p>
         </section>
 
-        <section id="content" class="content" aria-live="polite"></section>
+        <section id="dashboard" class="dashboard"></section>
+
+        <section class="toolbar">
+          <input id="searchInput" placeholder="搜索记录、标签、任务、账单" />
+          <select id="filterInput">
+            <option value="all">全部</option>
+            <option value="diary">日记</option>
+            <option value="task">任务</option>
+            <option value="money">收支</option>
+            <option value="mood">心情</option>
+            <option value="photo">图片</option>
+          </select>
+        </section>
+
+        <section id="content" class="content"></section>
       </main>
     </div>
 
-    <template id="entryTemplate">
-      <article class="entry-card">
-        <div class="entry-meta">
-          <span class="entry-time"></span>
-          <div class="entry-tags"></div>
+    <template id="entryTpl">
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <time></time>
+            <div class="chips"></div>
+          </div>
+          <button class="ghost danger" type="button">删除</button>
         </div>
         <p class="entry-text"></p>
-        <div class="entry-photos"></div>
-        <div class="entry-breakdown"></div>
-        <button class="delete-btn" type="button">删除</button>
+        <div class="photo-row"></div>
+        <div class="facts"></div>
       </article>
     </template>
 
