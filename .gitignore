@@ -1,7 +1,5 @@
-.DS_Store
-Thumbs.db
-*.log
-node_modules/
-dist/
+﻿node_modules
+.next
 .env
-.env.*
+codex_my_diary_deploy
+codex_my_diary_deploy.pub
