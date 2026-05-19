@@ -1,4 +1,4 @@
-﻿export const analyzeEntrySchema = {
+export const analyzeEntrySchema = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -14,3 +14,43 @@
   },
   required: ["summary", "moodLabel", "moodScore", "tags", "extractedTasks", "extractedFinance", "extractedTimelineEvents", "extractedAlbumItems", "extractedWorkItems"]
 } as const;
+
+export const summarizeDaySchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    summary: { type: "string" },
+    highlights: { type: "array", items: { type: "string" } }
+  },
+  required: ["summary", "highlights"]
+} as const;
+
+export const answerChatSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    answer: { type: "string" }
+  },
+  required: ["answer"]
+} as const;
+
+export type AnalyzeEntryOutput = {
+  summary: string;
+  moodLabel: string;
+  moodScore: number;
+  tags: string[];
+  extractedTasks: unknown[];
+  extractedFinance: unknown[];
+  extractedTimelineEvents: unknown[];
+  extractedAlbumItems: unknown[];
+  extractedWorkItems: unknown[];
+};
+
+export type SummarizeDayOutput = {
+  summary: string;
+  highlights: string[];
+};
+
+export type AnswerChatOutput = {
+  answer: string;
+};
