@@ -1,42 +1,51 @@
-# 数据库
+# Database
 
-项目使用 Prisma + PostgreSQL。
+This project uses Prisma + PostgreSQL.
 
-核心模型分组：
-- 身份：`User`
-- 日记内容：`Entry`
-- 媒体：`Attachment`、`AlbumItem`
-- 分析：`AiAnalysis`
-- 计划：`Task`、`TaskLink`
-- 情绪：`MoodRecord`
-- 时间线：`TimelineEvent`、`DailySummary`
-- 知识：`Tag`、`Person`、`EntryTag`、`EntryPerson`
-- 工作：`WorkItem`
-- 对话：`ChatSession`、`ChatMessage`
-- 检索：`VectorDocument`
+## Relevant Models
 
-重要枚举分组：
-- 输入类型和媒体类型
-- 任务状态和优先级
-- 时间线事件类型
-- 工作类别
-- 对话模式和角色
-- 分析提供方
+- `User`
+- `Entry`
+- `EntryAnalysis`
+- `EntryEmotion`
+- `Task`
+- `Tag`
+- `EntryTag`
+- `MoodRecord`
+- `TimelineEvent`
+- `WorkItem`
+- `ChatSession`
+- `ChatMessage`
 
-值得注意的模型关系：
-- `User` 拥有整个内容图谱
-- `Entry` 是后续派生的中心源记录
-- `Attachment` 可以挂在 `Entry` 上，也可以作为用户下的独立资源存在
-- `AiAnalysis` 存储一条 `Entry` 的结构化分析结果
-- `Task`、`MoodRecord`、`TimelineEvent` 和 `WorkItem` 都可能回指到 `Entry`
-- `Tag` 和 `Person` 都是用户级唯一，条目关系通过中间表建立
-- `ChatSession` 包含多条 `ChatMessage`
-- `VectorDocument` 是当前检索层的抽象
+## Entry Processor v1 Storage
 
-索引和唯一性模式：
-- 大多数内容表按 `userId` 和时间字段建索引
-- 用户级标签名和人名有唯一约束
-- 条目-标签和条目-人物组合唯一
-- 每个用户每天只有一条 `DailySummary`
+- `Entry`
+  - stores original raw text in `rawContent`
+  - keeps `contentText` for backward compatibility
+  - uses `type` and `inputType`
+- `EntryAnalysis`
+  - stores the AI summary
+  - stores `compressedMemory`
+  - stores `timelineType`
+  - stores `confidence`
+  - stores the raw AI payload
+- `EntryEmotion`
+  - stores emotion name, intensity, and reason
+- `Task`
+  - stores extracted tasks with `deadlineText` and `sourceText`
+- `Tag` + `EntryTag`
+  - store extracted tags and entry linkage
 
-数据库访问目前已经在 schema 里定义好了，但很多服务函数仍然只是返回空数组或占位结果。
+## Existing Models Reused
+
+- Existing `Task` is reused instead of creating a second task table.
+- Existing `Tag` / `EntryTag` are reused instead of adding a separate tag table.
+- Existing `Entry` is extended instead of replaced.
+
+## v1 Constraint
+
+- No vector database.
+- No separate long-memory index.
+- No audio/video processing tables.
+- No complex image understanding tables.
+

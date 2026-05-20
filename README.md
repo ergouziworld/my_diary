@@ -1,28 +1,39 @@
 # my_diary
 
-一个面向个人记录与复盘的 AI 日记项目。
+## 本地预览速查
 
-它的目标不是简单记流水账，而是把日记、任务、情绪、时间线和工作事项连接起来，让 AI 帮助你做整理、归纳、追踪和回顾。
+- 预览地址: `http://127.0.0.1:3000`
+- 稳定预览: 双击 `scripts\preview.cmd`
+- 开发启动: 双击 `scripts\start-dev.cmd`
+- 清缓存重启: 双击 `scripts\restart-dev.cmd`
 
-## 这个项目是什么
+## 刷新方式
 
-- 记录日常输入，支持文本和后续可扩展的多种内容形式
-- 让 AI 从记录中提取摘要、任务、情绪、时间线和人物关系
-- 逐步形成可查询、可分析、可回顾的个人知识库
-- 为后续的 Chat、Timeline、Mood、Task、Work 等能力留出扩展空间
+- 改代码后先保存文件
+- 开发模式通常自动热更新
+- 没变化就手动刷新浏览器
+- 如果用的是 `preview.cmd`，改完代码需要重新运行一次
 
-## 先看这几个文件
+## 热更新失效
 
-如果你是 AI，或者准备基于这个仓库继续协作，请先阅读：
+1. 关闭当前命令窗口
+2. 重新运行 `scripts\restart-dev.cmd`
+3. 再打开 `http://127.0.0.1:3000`
 
-- [roadmap.md](docs/roadmap.md)
-- [engineering.md](docs/engineering.md)
-- [architecture.md](docs/architecture.md)
+## 网页打不开
 
-这三个文件分别说明下一步计划、工程规范和系统结构。
+1. 确认命令行没有报错
+2. 确认 3000 端口未被别的程序占用
+3. 优先运行 `scripts\preview.cmd`
+4. 如果还是不行，运行 `scripts\restart-dev.cmd`
+5. 检查 `.env.local` 是否存在
 
-## 当前状态
+## 本地环境
 
-- 项目处于早期整理阶段
-- 重点是先统一文档、结构和开发约定
-- 后续再逐步落地核心数据流和 AI 能力
+```env
+DATABASE_URL="postgresql://postgres:postgres@db:5432/my_diary?schema=public"
+AI_PROVIDER="mock"
+DEMO_USER_ID="demo-user"
+PUBLIC_APP_URL="http://127.0.0.1:3000"
+```
+

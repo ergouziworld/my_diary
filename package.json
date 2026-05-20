@@ -1,11 +1,12 @@
 {
     "name": "my_diary",
     "private": true,
-    "version": "0.1.0",
+    "version": "0.11.0",
     "scripts": {
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
+        "preview": "npm run build && npm run start -- --hostname 127.0.0.1 --port 3000",
         "lint": "next lint",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev"

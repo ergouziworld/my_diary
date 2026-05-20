@@ -109,12 +109,15 @@ model User {
   chatSessions    ChatSession[]
   dailySummaries  DailySummary[]
   vectorDocuments VectorDocument[]
+  albumItems      AlbumItem[]
 }
 
 model Entry {
   id          String    @id @default(cuid())
   userId      String
   contentText String?
+  rawContent  String?
+  type        String    @default("text")
   inputType   InputType
   sourceUrl   String?
   rawMetadata Json?
@@ -124,12 +127,16 @@ model Entry {
   user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   attachments Attachment[]
   analyses    AiAnalysis[]
+  entryAnalysis EntryAnalysis?
   tasks       Task[]
+  entryEmotions EntryEmotion[]
   moods       MoodRecord[]
   timelineEvents TimelineEvent[]
   workItems   WorkItem[]
   entryTags   EntryTag[]
   entryPeople EntryPerson[]
+  vectorDocuments VectorDocument[]
+  albumItems  AlbumItem[]
   @@index([userId, createdAt])
 }
 
@@ -149,6 +156,7 @@ model Attachment {
   entry       Entry?        @relation(fields: [entryId], references: [id], onDelete: SetNull)
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   albumItems  AlbumItem[]
+  vectorDocuments VectorDocument[]
   @@index([userId, createdAt])
 }
 
@@ -177,12 +185,42 @@ model AiAnalysis {
   @@index([entryId, createdAt])
 }
 
+model EntryAnalysis {
+  id                String   @id @default(cuid())
+  entryId           String   @unique
+  summary           String
+  compressedMemory  String
+  timelineType      String
+  confidence        Float
+  rawAiResult       Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+}
+
+model EntryEmotion {
+  id         String   @id @default(cuid())
+  entryId    String
+  name       String
+  intensity  Float
+  reason     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId])
+}
+
 model Task {
   id          String       @id @default(cuid())
   userId      String
   entryId     String?
   title       String
   description String?
+  deadlineText String?
+  sourceText  String?
   status      TaskStatus   @default(todo)
   priority    PriorityLevel @default(medium)
   dueDate     DateTime?
