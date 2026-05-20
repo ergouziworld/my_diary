@@ -14,8 +14,8 @@ function getTimelineTitle(entry: Awaited<ReturnType<typeof listEntries>>[number]
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="时间线" description="优先展示事件本身，再看摘要。"/>
-      <Suspense fallback={<Panel title="今日时间线" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
+      <SectionHeader title="时间线" description="优先展示事件本身，再看摘要。" />
+      <Suspense fallback={<Panel title="时间线" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
         <TimelineList />
       </Suspense>
     </div>
@@ -26,7 +26,7 @@ async function TimelineList() {
   const entries = await listEntries();
 
   return (
-    <Panel title="今日时间线" subtitle="把原文和摘要串起来。">
+    <Panel title="今天的时间线" subtitle="把原文和摘要串起来。">
       <div className="space-y-4">
         {entries.length ? (
           entries.map((entry) => (

@@ -1,1 +1,3 @@
-﻿export async function listMoodRecords() { return []; }
+export async function listMoodRecords() {
+  return [];
+}

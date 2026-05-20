@@ -36,11 +36,11 @@ function buildHeuristicResult(content: string): Partial<EntryAnalyzeResult> {
   };
 
   const emotions: EntryAnalyzeResult["emotions"] = [];
-  if (/[烦焦躁崩溃累累死]/.test(text)) {
-    emotions.push({ name: "烦躁", intensity: 0.7, reason: "文本中出现明显负向情绪词" });
+  if (/[焦烦疲累崩溃难受]/.test(text)) {
+    emotions.push({ name: "烦躁", intensity: 0.7, reason: "文本中出现了明显的负向情绪词" });
   }
-  if (/[开心成就完成解决太好了顺利]/.test(text)) {
-    emotions.push({ name: "成就感", intensity: 0.7, reason: "文本中出现明显正向结果词" });
+  if (/[开心成就完成解决顺利]/.test(text)) {
+    emotions.push({ name: "成就感", intensity: 0.7, reason: "文本中出现了明显的正向结果词" });
   }
   if (emotions.length) {
     result.emotions = emotions;
@@ -48,13 +48,13 @@ function buildHeuristicResult(content: string): Partial<EntryAnalyzeResult> {
   }
 
   const tasks: EntryAnalyzeResult["tasks"] = [];
-  if (/明天|记得|待办|需要|要/.test(text)) {
-    const match = text.match(/(?:明天|记得|待办|需要|要)([^。！？\n]+)/);
+  if (/明天|记得|待办|需要|要去/.test(text)) {
+    const match = text.match(/(?:明天|记得|待办|需要|要去)([^。！？\n]+)/);
     const title = match?.[1]?.trim() || text.slice(0, 24);
     tasks.push({
       title: title || "待办事项",
-      priority: /赶紧|尽快|马上|今天/.test(text) ? "high" : "medium",
-      deadlineText: /明天/.test(text) ? "明天" : "无",
+      priority: /紧急|尽快|马上|今天/.test(text) ? "high" : "medium",
+      deadlineText: /明天/.test(text) ? "明天" : "",
       sourceText: text
     });
     result.entryTypes = Array.from(new Set([...(result.entryTypes ?? []), "task"]));
@@ -62,11 +62,11 @@ function buildHeuristicResult(content: string): Partial<EntryAnalyzeResult> {
   if (tasks.length) result.tasks = tasks;
 
   const workItems: EntryAnalyzeResult["workItems"] = [];
-  if (/项目|开发|AI|代码|bug|导航卡顿|接口|API|千问/.test(text)) {
+  if (/项目|开发|AI|代码|bug|接口|API|学习/.test(text)) {
     workItems.push({
-      project: /AI日记|AI 日记|日记项目/.test(text) ? "AI 日记项目" : "工作 / 学习",
-      type: /修|bug|API|接口|代码|开发/.test(text) ? "development" : "other",
-      title: /修|bug/.test(text) ? "修复问题" : "项目推进",
+      project: /AI日记|日记项目/.test(text) ? "AI 日记项目" : "工作 / 学习",
+      type: /开发|bug|API|接口|代码/.test(text) ? "development" : "other",
+      title: /bug/.test(text) ? "修复问题" : "项目推进",
       description: text
     });
     result.entryTypes = Array.from(new Set([...(result.entryTypes ?? []), "work"]));
@@ -78,10 +78,10 @@ function buildHeuristicResult(content: string): Partial<EntryAnalyzeResult> {
   if (/花了|支出|买了|消费|付款|转账|收款|收入/.test(text)) {
     const isIncome = /收入|收款|到账/.test(text);
     financeItems.push({
-      title: /鸟粮/.test(text) ? "鸟粮" : isIncome ? "收入记录" : "消费记录",
-      amountText: amountMatch?.[1] ?? "无",
+      title: isIncome ? "收入记录" : "消费记录",
+      amountText: amountMatch?.[1] ?? "",
       type: isIncome ? "income" : "expense",
-      category: /鸟粮/.test(text) ? "pet" : "general",
+      category: "general",
       sourceText: text
     });
     result.entryTypes = Array.from(new Set([...(result.entryTypes ?? []), "finance"]));

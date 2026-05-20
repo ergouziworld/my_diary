@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { BigInputBox } from "@/components/entry/BigInputBox";
+import { SmallAiBox } from "@/components/entry/SmallAiBox";
 import { MetricCard } from "@/components/common/MetricCard";
 import { Panel } from "@/components/common/Panel";
 import { Pill } from "@/components/common/Pill";
-import { SectionHeader } from "@/components/common/SectionHeader";
 import { listEntries } from "@/server/entries";
 import pkg from "../../package.json";
 
@@ -40,9 +40,13 @@ export default function HomePage() {
         </Suspense>
       </section>
 
-      <Panel title="快速记一条" subtitle="先保存原文，再交给 AI 做结构化分析。">
-        <BigInputBox />
-      </Panel>
+      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+        <Panel title="快速记一条" subtitle="先保存原文，再交给 AI 做结构化分析。">
+          <BigInputBox />
+        </Panel>
+
+        <SmallAiBox />
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
         <Suspense fallback={<Panel title="最近记录" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
