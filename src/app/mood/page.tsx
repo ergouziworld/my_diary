@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="情绪" description="优先读取 entry_emotions。" />
+      <SectionHeader title="情绪" description="读取 entry_emotions 和分析结果中的情绪。"/>
       <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
         <MoodContent />
       </Suspense>
@@ -39,13 +39,13 @@ async function MoodContent() {
   return (
     <>
       <section className="grid gap-4 md:grid-cols-4">
-        <MetricCard label="情绪记录" value={String(emotions.length)} hint="来自 entry 的结构化分析" />
-        <MetricCard label="焦虑" value={String(emotions.filter((item) => item.name === "焦虑").length)} hint="按名称聚合" />
-        <MetricCard label="平静" value={String(emotions.filter((item) => item.name === "平静").length)} hint="按名称聚合" />
-        <MetricCard label="其他" value={String(Math.max(emotions.length - 2, 0))} hint="其余情绪项" />
+        <MetricCard label="情绪记录" value={String(emotions.length)} hint="来自结构化分析" />
+        <MetricCard label="高强度" value={String(emotions.filter((item) => item.intensity >= 0.7).length)} hint="intensity >= 0.7" />
+        <MetricCard label="中强度" value={String(emotions.filter((item) => item.intensity >= 0.4 && item.intensity < 0.7).length)} hint="intensity 0.4-0.7" />
+        <MetricCard label="低强度" value={String(emotions.filter((item) => item.intensity < 0.4).length)} hint="intensity < 0.4" />
       </section>
 
-      <Panel title="情绪明细" subtitle="来自 AI 分析结果。">
+      <Panel title="情绪明细" subtitle="名称、强度、原因与来源摘要。">
         <div className="space-y-3">
           {emotions.length ? (
             emotions.map((item) => (
@@ -58,7 +58,7 @@ async function MoodContent() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-slate-400">暂无 AI 情绪结果。</p>
+            <p className="text-sm text-slate-400">暂无情绪结果。</p>
           )}
         </div>
       </Panel>

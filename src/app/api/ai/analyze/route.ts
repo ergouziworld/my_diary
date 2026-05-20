@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/auth";
 import { analyzeEntry } from "@/server/ai/aiService";
 import {
+  memoryCreateEntry,
   memoryFindEntry,
   memoryReplaceFinanceItems,
   memoryReplaceEmotions,
@@ -44,8 +45,20 @@ export async function POST(request: Request) {
     } catch {
       entry = null;
     }
+
     const fallbackEntry = entry ?? memoryFindEntry(entryId, userId);
-    if (!fallbackEntry) return jsonError("entry not found", 404);
+    if (!fallbackEntry) {
+      memoryCreateEntry({
+        id: entryId,
+        userId,
+        rawContent: content,
+        contentText: content,
+        type: "text",
+        inputType: "text",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
 
     const { provider, result } = await analyzeEntry({ entryId, content, type });
 

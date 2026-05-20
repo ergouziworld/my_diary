@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { Panel } from "@/components/common/Panel";
 import { Pill } from "@/components/common/Pill";
@@ -10,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="任务" description="优先读取 AI 提取的 tasks。" />
+      <SectionHeader title="任务" description="读取 tasks 表与 AI 分析结果。"/>
       <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
         <TaskList />
       </Suspense>
@@ -38,22 +37,11 @@ async function TaskList() {
           deadline: task.deadlineText ?? "无"
         });
       }
-      continue;
-    }
-    const raw = entry.entryAnalysis?.rawAiResult as { tasks?: Array<{ title?: string; priority?: "low" | "medium" | "high"; deadlineText?: string; sourceText?: string }> } | null | undefined;
-    for (const task of raw?.tasks ?? []) {
-      if (!task.title) continue;
-      tasks.push({
-        title: task.title,
-        status: "todo",
-        priority: task.priority ?? "low",
-        deadline: task.deadlineText ?? "无"
-      });
     }
   }
 
   return (
-    <Panel title="AI 任务列表" subtitle="来自 entry 分析结果的最小任务视图。">
+    <Panel title="任务列表" subtitle="只展示真实写入数据库的任务。">
       <div className="space-y-3">
         {tasks.length ? (
           tasks.map((task) => (
@@ -69,7 +57,7 @@ async function TaskList() {
             </div>
           ))
         ) : (
-          <p className="text-sm text-slate-400">暂无 AI 任务结果。</p>
+          <p className="text-sm text-slate-400">暂无任务。</p>
         )}
       </div>
     </Panel>
