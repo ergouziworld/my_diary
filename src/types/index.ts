@@ -1,6 +1,6 @@
-import type { FinanceType, InputType, MediaType, RecordStatus, TaskStatus } from "@prisma/client";
+import type { InputType, MediaType, TaskStatus } from "@prisma/client";
 
-export type { FinanceType, InputType, MediaType, RecordStatus, TaskStatus };
+export type { InputType, MediaType, TaskStatus };
 
 export type ApiResponse<T> =
   | { ok: true; data: T }

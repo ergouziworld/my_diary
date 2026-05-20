@@ -1,40 +1,69 @@
-# AI 流程
+# AI Flow
 
-当前 AI 流程只有一条已实现的公开路径：
+## Stage 1: Entry Processor v1
 
-1. `POST /api/ai/analyze`
-2. 请求体会先经过 `parseAnalyzeEntryInput` 校验
-3. `analyzeEntry` 创建 AI 生产器
-4. 使用 `analyzeEntrySchema` 请求结构化响应
+This project currently uses one production AI flow:
 
-相关代码：
-- `src/app/api/ai/analyze/route.ts`
-- `src/server/aiAnalyze.ts`
-- `src/lib/aiProducer.ts`
-- `src/lib/aiSchemas.ts`
+1. The homepage saves a text entry through `POST /api/entries`.
+2. The client then calls `POST /api/ai/analyze` with `entryId`, `content`, and `type`.
+3. The AI service picks a provider from `AI_PROVIDER`.
+4. The provider returns structured JSON.
+5. The route persists:
+   - `entry_analysis`
+   - `entry_emotions`
+   - `tasks`
+   - `entry_tags`
 
-AI 层的设计目标是结构化抽取，而不只是自由文本输出。schema 已经预留了这些内容：
-- 总结
-- 情绪标签和分数
-- 标签
-- 任务
-- 时间线事件
-- 工作事项
-- 人物
-- 原始输出保留
+## Provider Rules
 
-分析输入约定：
-- `text` 是必填项，且不能为空
-- `source` 是可选项
-- `metadata` 是可选项，但如果传入必须是对象
+- `mock` is the default fallback.
+- `openai`, `qwen`, and `deepseek` use the same OpenAI-compatible backend shape.
+- API keys are read only on the server.
+- The frontend never calls the provider directly.
 
-路由行为：
-- 非法 JSON 返回 HTTP 400
-- 非法参数形状返回 HTTP 400，并带校验错误信息
-- 成功分析返回 `{ ok: true, result }`
+## Prompt Rules
 
-当前限制：
-- 聊天接口仍然是占位
-- 多模态流水线还没有实现
-- `docs/prompts/` 下的提示词文件只是文档说明
-- 记忆和检索已经有方向，但还没有完全接通
+- Prompts live in `src/server/ai/prompts/entryAnalyzePrompt.ts`.
+- Page components must not contain prompt text.
+- The prompt must avoid inventing facts not present in the entry text.
+
+## Output Rules
+
+The entry analysis output must include:
+
+- `summary`
+- `compressedMemory`
+- `tags`
+- `emotions`
+- `tasks`
+- `timelineType`
+- `people`
+- `projects`
+- `confidence`
+
+If the provider fails, the service falls back to `mock` output instead of crashing the entry pipeline.
+
+## Small AI / Category AI / Big AI
+
+### Small AI
+
+- Only reads the current input box.
+- Input length should stay within 100 Chinese characters when used in UI flows.
+- Reply should stay within 100 Chinese characters.
+- Default reply target is 10-30 Chinese characters.
+- Does not read long-term memory.
+- Does not write to long-term storage.
+
+### Category AI
+
+- Handles entry analysis.
+- Produces structured JSON.
+- Writes analysis, tags, emotions, and tasks.
+
+### Big AI
+
+- Not implemented in this stage.
+- Later it will first use tags, `timelineType`, `people`, and `projects` for coarse retrieval.
+- Then it can read `compressedMemory`.
+- Only high-relevance entries may use `rawContent` or attachment descriptions for deeper analysis.
+

@@ -1,9 +1,35 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { createEntry, listEntries } from "@/server/entries";
 
 export async function GET() {
-  return NextResponse.json({ ok: true, data: [] });
+  const data = await listEntries();
+  return NextResponse.json({ ok: true, data });
 }
 
-export async function POST() {
-  return NextResponse.json({ ok: true });
+export async function POST(req: Request) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  const value = body as { rawContent?: unknown; type?: unknown };
+  if (typeof value.rawContent !== "string" || !value.rawContent.trim()) {
+    return NextResponse.json({ ok: false, error: "Field `rawContent` is required." }, { status: 400 });
+  }
+  if (value.type !== "text") {
+    return NextResponse.json({ ok: false, error: "Field `type` must be `text`." }, { status: 400 });
+  }
+
+  const entry = await createEntry({ rawContent: value.rawContent.trim(), type: "text" });
+  return NextResponse.json({
+    ok: true,
+    data: {
+      id: entry.id,
+      rawContent: entry.rawContent,
+      type: entry.type,
+      createdAt: entry.createdAt
+    }
+  });
 }

@@ -1,24 +1,49 @@
-# 条目流水线
+# Entry Pipeline
 
-条目流水线是整个应用的核心流程。
+## Current Flow
 
-当前形态：
-- 用户写入或导入内容
-- 内容被表示为一个 `Entry`
-- 条目可能包含 `contentText`、`inputType`、`sourceUrl` 和 `rawMetadata`
-- 附件单独存储为 `Attachment`
-- 可以通过 `POST /api/ai/analyze` 对条目发起 AI 分析
-- 后续派生数据可以填充任务、情绪、时间线事件和工作事项
+1. The user enters a text entry on the homepage.
+2. The client saves the raw text with `POST /api/entries`.
+3. The same client payload is sent to `POST /api/ai/analyze`.
+4. The analysis route validates the entry and runs the AI service.
+5. The route persists the analysis result and derived records.
 
-已实现的边界：
-- `GET /api/entries` 目前返回 `{ ok: true, data: [] }`
-- `POST /api/entries` 目前返回 `{ ok: true }`
-- `POST /api/ai/analyze` 会校验请求 JSON，并进入结构化 AI 分析
+## Saved Data
 
-相关代码：
-- `src/app/api/entries/route.ts`
-- `src/app/api/ai/analyze/route.ts`
-- `src/server/aiAnalyze.ts`
-- `prisma/schema.prisma`
+- `Entry`
+  - `rawContent`
+  - `contentText`
+  - `type`
+  - `inputType`
+- `EntryAnalysis`
+  - `summary`
+  - `compressedMemory`
+  - `timelineType`
+  - `confidence`
+  - `rawAiResult`
+- `EntryEmotion`
+  - `name`
+  - `intensity`
+  - `reason`
+- `Task`
+  - `title`
+  - `priority`
+  - `deadlineText`
+  - `sourceText`
+  - `status`
+- `EntryTag`
+  - links entry to user tags
 
-这个流水线的设计目标是：让日记录入在 UI 层尽量简单，而分析和派生对象在服务层后置生成。
+## Error Handling
+
+- Empty `content` returns a clear `400`.
+- Unknown entry IDs return `404`.
+- AI failures do not block entry persistence.
+- The service falls back to mock output when the provider call fails.
+
+## Notes
+
+- This stage only supports text entries.
+- It does not handle audio, video, or complex image understanding.
+- It does not implement long-memory search.
+
