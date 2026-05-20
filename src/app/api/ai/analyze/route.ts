@@ -25,15 +25,14 @@ function mapWorkCategory(type: string) {
 }
 
 function normalizeAmountText(amountText: string) {
-  return amountText.trim() || "无";
+  return amountText.trim();
 }
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { entryId?: string; content?: string; type?: string };
+    const body = (await request.json()) as { entryId?: string; content?: string };
     const entryId = typeof body.entryId === "string" ? body.entryId.trim() : "";
     const content = typeof body.content === "string" ? body.content.trim() : "";
-    const type = body.type === "text" ? "text" : "text";
 
     if (!entryId) return jsonError("entryId is required");
     if (!content) return jsonError("content cannot be empty");
@@ -60,7 +59,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const { provider, result } = await analyzeEntry({ entryId, content, type });
+    const { provider, result } = await analyzeEntry({ entryId, content, type: "text" });
 
     try {
       await prisma.$transaction(async (tx) => {
@@ -103,7 +102,7 @@ export async function POST(request: Request) {
               entryId,
               title: task.title,
               priority: task.priority,
-              deadlineText: task.deadlineText === "无" ? null : task.deadlineText,
+              deadlineText: task.deadlineText || null,
               sourceText: task.sourceText,
               status: "todo"
             }))
@@ -179,7 +178,7 @@ export async function POST(request: Request) {
           entryId,
           title: task.title,
           priority: task.priority,
-          deadlineText: task.deadlineText === "无" ? null : task.deadlineText,
+          deadlineText: task.deadlineText || null,
           sourceText: task.sourceText,
           status: "todo"
         }))

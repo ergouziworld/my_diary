@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="情绪" description="读取 entry_emotions 和分析结果中的情绪。"/>
+      <SectionHeader title="情绪" description="读取 entry_emotions 和分析结果里的情绪信息。" />
       <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
         <MoodContent />
       </Suspense>

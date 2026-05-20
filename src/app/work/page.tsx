@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="工作 / 学习" description="读取 workItems 与相关分析结果。"/>
+      <SectionHeader title="工作 / 学习" description="读取 workItems 与相关分析结果。" />
       <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
         <WorkContent />
       </Suspense>
@@ -62,7 +62,7 @@ async function WorkContent() {
               </div>
             ))
           ) : (
-            <p className="text-sm text-slate-400">暂无工作学习条目。</p>
+            <p className="text-sm text-slate-400">暂无工作/学习条目。</p>
           )}
         </div>
       </Panel>

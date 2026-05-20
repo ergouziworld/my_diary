@@ -14,15 +14,13 @@ type AnalysisResult = {
 export function BigInputBox() {
   const router = useRouter();
   const [content, setContent] = useState("");
-  const [status, setStatus] = useState<string>("等待提交");
+  const [status, setStatus] = useState("等待提交");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
     const text = content.trim();
-    if (!text || loading) {
-      return;
-    }
+    if (!text || loading) return;
 
     setLoading(true);
     setStatus("先保存 entry，再请求 AI 分析");
@@ -52,16 +50,15 @@ export function BigInputBox() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ entryId, content: text, type: "text" })
       });
-      const analysis = (await analysisResponse.json()) as
-        | { ok: true; result: AnalysisResult }
-        | { ok: false; error: string };
+      const analysis = (await analysisResponse.json()) as { ok: true; data?: AnalysisResult } | { ok: false; error: string };
 
       if (!analysisResponse.ok || !analysis.ok) {
         setStatus("ok" in analysis && !analysis.ok ? analysis.error : "AI 分析稍后可重试");
         return;
       }
 
-      setResult(analysis.result);
+      const nextResult = analysis.data ?? null;
+      setResult(nextResult);
       setStatus("已保存并完成分析");
       router.refresh();
     } catch (error) {

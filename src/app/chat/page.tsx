@@ -5,7 +5,12 @@ import { Panel } from "@/components/common/Panel";
 import { Pill } from "@/components/common/Pill";
 import { SectionHeader } from "@/components/common/SectionHeader";
 
-const suggestions = ["我最近为什么焦虑？", "帮我总结今天的状态", "我这周的任务该怎么排", "根据我的记录给我一个行动建议"];
+const suggestions = [
+  "我最近为什么焦虑？",
+  "帮我总结今天的状态",
+  "我这周的任务该怎么安排？",
+  "根据我的记录给我一个行动建议"
+];
 
 export default function Page() {
   const [question, setQuestion] = useState("我最近为什么焦虑？");
@@ -14,9 +19,7 @@ export default function Page() {
 
   async function handleAsk() {
     const text = question.trim();
-    if (!text || loading) {
-      return;
-    }
+    if (!text || loading) return;
 
     setLoading(true);
     setAnswer("AI 正在思考...");
@@ -49,10 +52,10 @@ export default function Page() {
     <div className="space-y-6">
       <SectionHeader
         title="大 AI"
-        description="这里是长期记忆问答入口，会把你的记录上下文接到 AI，再返回可操作的建议。"
+        description="这里是长期记忆问答入口，会把你的记录作为上下文交给 AI，再返回可操作建议。"
       />
 
-      <Panel title="长期记忆问答" subtitle="先提问，再由服务端去调用你配置的 AI 提供商。">
+      <Panel title="长期记忆问答" subtitle="先提问，再由服务端调用配置的 AI 提供商。">
         <div className="space-y-4">
           <textarea
             className="min-h-36 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/50"
@@ -77,7 +80,7 @@ export default function Page() {
       </Panel>
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <Panel title="快捷提问" subtitle="常见问题可以直接点，减少输入成本。">
+        <Panel title="快捷提问" subtitle="常见问题可以直接点选，减少输入成本。">
           <div className="space-y-3">
             {suggestions.map((item) => (
               <button
@@ -91,7 +94,7 @@ export default function Page() {
           </div>
         </Panel>
 
-        <Panel title="回答草稿" subtitle="这里显示 AI 的最终结论，后续可以继续拆成证据、建议和下一步。">
+        <Panel title="回答草稿" subtitle="这里显示 AI 的最终结论，后续可以拆成证据、建议和下一步。">
           <div className="whitespace-pre-wrap text-sm leading-6 text-slate-300">{answer}</div>
         </Panel>
       </div>

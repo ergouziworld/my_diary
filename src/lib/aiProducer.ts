@@ -177,7 +177,7 @@ class OpenAiCompatibleProducer implements AiProducer {
     return [
       {
         role: "system",
-        content: "你是一个个人助理。请严格只输出 JSON，回答要简洁、具体。"
+        content: "你是一个个人小 AI。请严格只输出 JSON，回答要尽量短，默认不超过 30 个汉字。不要输出多余解释。"
       },
       {
         role: "user",
@@ -207,6 +207,33 @@ class MockAiProducer implements AiProducer {
         extractedTimelineEvents: [],
         extractedAlbumItems: [],
         extractedWorkItems: []
+      };
+
+      return {
+        provider: this.name,
+        model: "mock",
+        output,
+        raw: { request }
+      };
+    }
+
+    if (request.purpose === "summarize_day") {
+      const output: SummarizeDayOutput = {
+        summary: "",
+        highlights: []
+      };
+
+      return {
+        provider: this.name,
+        model: "mock",
+        output,
+        raw: { request }
+      };
+    }
+
+    if (request.purpose === "answer_chat") {
+      const output: AnswerChatOutput = {
+        answer: "先说重点。"
       };
 
       return {

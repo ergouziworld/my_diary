@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="任务" description="读取 tasks 表与 AI 分析结果。"/>
+      <SectionHeader title="任务" description="读取 tasks 表与 AI 分析结果。" />
       <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
         <TaskList />
       </Suspense>
@@ -28,15 +28,13 @@ async function TaskList() {
 
   const tasks: TaskView[] = [];
   for (const entry of entries) {
-    if (entry.tasks.length) {
-      for (const task of entry.tasks) {
-        tasks.push({
-          title: task.title,
-          status: task.status,
-          priority: task.priority,
-          deadline: task.deadlineText ?? "无"
-        });
-      }
+    for (const task of entry.tasks) {
+      tasks.push({
+        title: task.title,
+        status: task.status,
+        priority: task.priority,
+        deadline: task.deadlineText ?? ""
+      });
     }
   }
 
@@ -53,7 +51,7 @@ async function TaskList() {
                   <Pill tone="accent">{task.status}</Pill>
                 </div>
               </div>
-              <p className="mt-2 text-sm text-slate-400">截止：{task.deadline}</p>
+              <p className="mt-2 text-sm text-slate-400">截止：{task.deadline || "未设置"}</p>
             </div>
           ))
         ) : (
