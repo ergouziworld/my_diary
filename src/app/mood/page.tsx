@@ -20,7 +20,21 @@ export default function Page() {
 
 async function MoodContent() {
   const entries = await listEntries();
-  const emotions = entries.flatMap((entry) => entry.entryEmotions);
+  const emotions = entries.flatMap((entry) => {
+    if (entry.entryEmotions.length) return entry.entryEmotions;
+    const raw = entry.entryAnalysis?.rawAiResult as { emotions?: Array<{ name?: string; intensity?: number; reason?: string }> } | null | undefined;
+    return (raw?.emotions ?? [])
+      .map((item, index) => ({
+        id: `${entry.id}-raw-emotion-${index}`,
+        entryId: entry.id,
+        name: item.name ?? "",
+        intensity: typeof item.intensity === "number" ? item.intensity : 0,
+        reason: item.reason ?? null,
+        createdAt: entry.createdAt,
+        updatedAt: entry.createdAt
+      }))
+      .filter((item) => item.name.length > 0);
+  });
 
   return (
     <>

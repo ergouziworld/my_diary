@@ -1,7 +1,6 @@
 @echo off
 setlocal
 set DATABASE_URL=postgresql://postgres:postgres@db:5432/my_diary?schema=public
-set AI_PROVIDER=mock
 cd /d %~dp0..
 
 for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":3000 " ^| findstr "LISTENING"') do (

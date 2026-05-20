@@ -15,6 +15,18 @@ export const analyzeEntrySchema = {
   required: ["summary", "moodLabel", "moodScore", "tags", "extractedTasks", "extractedFinance", "extractedTimelineEvents", "extractedAlbumItems", "extractedWorkItems"]
 } as const;
 
+export type AnalyzeEntryOutput = {
+  summary: string;
+  moodLabel: string;
+  moodScore: number;
+  tags: string[];
+  extractedTasks: unknown[];
+  extractedFinance: unknown[];
+  extractedTimelineEvents: unknown[];
+  extractedAlbumItems: unknown[];
+  extractedWorkItems: unknown[];
+};
+
 export const summarizeDaySchema = {
   type: "object",
   additionalProperties: false,
@@ -33,18 +45,6 @@ export const answerChatSchema = {
   },
   required: ["answer"]
 } as const;
-
-export type AnalyzeEntryOutput = {
-  summary: string;
-  moodLabel: string;
-  moodScore: number;
-  tags: string[];
-  extractedTasks: unknown[];
-  extractedFinance: unknown[];
-  extractedTimelineEvents: unknown[];
-  extractedAlbumItems: unknown[];
-  extractedWorkItems: unknown[];
-};
 
 export type SummarizeDayOutput = {
   summary: string;

@@ -7,15 +7,6 @@ import { listEntries } from "@/server/entries";
 
 export const dynamic = "force-dynamic";
 
-type WorkItemView = {
-  title: string;
-  projectName: string | null;
-  category: string;
-  description: string | null;
-  status: string;
-  entryId: string;
-};
-
 export default function Page() {
   return (
     <div className="space-y-6">
@@ -29,16 +20,32 @@ export default function Page() {
 
 async function WorkContent() {
   const entries = await listEntries();
-  const items: WorkItemView[] = entries.flatMap((entry) =>
-    (entry.workItems ?? []).map((item) => ({
-      title: item.title,
-      projectName: item.projectName ?? null,
-      category: item.category,
-      description: item.description ?? null,
-      status: item.status,
-      entryId: entry.id
-    }))
-  );
+  const items = entries.flatMap((entry) => {
+    if (entry.workItems.length) {
+      return entry.workItems.map((item) => ({
+        title: item.title,
+        projectName: item.projectName ?? null,
+        category: item.category,
+        description: item.description ?? null,
+        status: item.status,
+        entryId: entry.id
+      }));
+    }
+    const raw = entry.entryAnalysis?.rawAiResult as
+      | { workItems?: Array<{ project?: string; type?: string; title?: string; description?: string }> }
+      | null
+      | undefined;
+    return (raw?.workItems ?? [])
+      .map((item) => ({
+        title: item.title ?? "",
+        projectName: item.project ?? null,
+        category: item.type === "development" ? "coding" : (item.type ?? "work"),
+        description: item.description ?? null,
+        status: "todo",
+        entryId: entry.id
+      }))
+      .filter((item) => item.title.length > 0);
+  });
 
   const summaryCount = items.length;
   const studyCount = items.filter((item) => item.category === "study" || item.category === "course").length;

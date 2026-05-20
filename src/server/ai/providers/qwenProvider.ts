@@ -87,6 +87,20 @@ function normalizeResult(value: unknown): EntryAnalyzeResult | null {
         .filter((item) => item.title.length > 0)
     : [];
 
+  const financeItems: EntryAnalyzeResult["financeItems"] = Array.isArray(record.financeItems)
+    ? record.financeItems
+        .map((item) => (item && typeof item === "object" ? (item as Record<string, unknown>) : null))
+        .filter((item): item is Record<string, unknown> => Boolean(item))
+        .map((item) => ({
+          title: typeof item.title === "string" ? item.title : "",
+          amountText: typeof item.amountText === "string" ? item.amountText : "",
+          type: item.type === "income" ? ("income" as const) : ("expense" as const),
+          category: typeof item.category === "string" ? item.category : "",
+          sourceText: typeof item.sourceText === "string" ? item.sourceText : ""
+        }))
+        .filter((item) => item.title.length > 0)
+    : [];
+
   const timelineTitle = typeof record.timelineTitle === "string" ? record.timelineTitle : "";
   const people = Array.isArray(record.people) ? record.people.filter((item): item is string => typeof item === "string") : [];
   const confidence = typeof record.confidence === "number" ? record.confidence : 0;
@@ -101,6 +115,7 @@ function normalizeResult(value: unknown): EntryAnalyzeResult | null {
     emotions,
     tasks,
     workItems,
+    financeItems,
     timelineTitle,
     people,
     confidence
