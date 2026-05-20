@@ -11,6 +11,7 @@ export type MemoryEntryRecord = {
   entryEmotions: MemoryEntryEmotionRecord[];
   tasks: MemoryTaskRecord[];
   workItems: MemoryWorkItemRecord[];
+  financeItems: MemoryFinanceItemRecord[];
 };
 
 export type MemoryEntryAnalysisRecord = {
@@ -22,6 +23,18 @@ export type MemoryEntryAnalysisRecord = {
   timelineTitle: string;
   confidence: number;
   rawAiResult: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type MemoryFinanceItemRecord = {
+  id: string;
+  entryId: string;
+  title: string;
+  amountText: string;
+  type: "expense" | "income";
+  category: string;
+  sourceText: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -67,14 +80,16 @@ const memoryAnalyses = new Map<string, MemoryEntryAnalysisRecord>();
 const memoryEmotions = new Map<string, MemoryEntryEmotionRecord[]>();
 const memoryTasks = new Map<string, MemoryTaskRecord[]>();
 const memoryWorkItems = new Map<string, MemoryWorkItemRecord[]>();
+const memoryFinanceItems = new Map<string, MemoryFinanceItemRecord[]>();
 
-export function memoryCreateEntry(entry: Omit<MemoryEntryRecord, "entryAnalysis" | "entryEmotions" | "tasks" | "workItems">) {
+export function memoryCreateEntry(entry: Omit<MemoryEntryRecord, "entryAnalysis" | "entryEmotions" | "tasks" | "workItems" | "financeItems">) {
   const record: MemoryEntryRecord = {
     ...entry,
     entryAnalysis: memoryAnalyses.get(entry.id) ?? null,
     entryEmotions: memoryEmotions.get(entry.id) ?? [],
     tasks: memoryTasks.get(entry.id) ?? [],
-    workItems: memoryWorkItems.get(entry.id) ?? []
+    workItems: memoryWorkItems.get(entry.id) ?? [],
+    financeItems: memoryFinanceItems.get(entry.id) ?? []
   };
   memoryEntries.set(entry.id, record);
   return record;
@@ -147,6 +162,24 @@ export function memoryReplaceWorkItems(entryId: string, items: Array<Omit<Memory
   const entry = memoryEntries.get(entryId);
   if (entry) {
     entry.workItems = records;
+  }
+  return records;
+}
+
+export function memoryReplaceFinanceItems(
+  entryId: string,
+  items: Array<Omit<MemoryFinanceItemRecord, "id" | "createdAt" | "updatedAt">>
+) {
+  const records = items.map((item, index) => ({
+    id: `mem-finance-${entryId}-${index}`,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...item
+  }));
+  memoryFinanceItems.set(entryId, records);
+  const entry = memoryEntries.get(entryId);
+  if (entry) {
+    entry.financeItems = records;
   }
   return records;
 }

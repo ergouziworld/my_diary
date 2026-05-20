@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { Panel } from "@/components/common/Panel";
 import { Pill } from "@/components/common/Pill";
@@ -19,14 +20,37 @@ export default function Page() {
 
 async function TaskList() {
   const entries = await listEntries();
-  const tasks = entries.flatMap((entry) =>
-    entry.tasks.map((task) => ({
-      title: task.title,
-      status: task.status,
-      priority: task.priority,
-      deadline: task.deadlineText ?? "无"
-    }))
-  );
+  type TaskView = {
+    title: string;
+    status: string;
+    priority: "low" | "medium" | "high" | "urgent";
+    deadline: string;
+  };
+
+  const tasks: TaskView[] = [];
+  for (const entry of entries) {
+    if (entry.tasks.length) {
+      for (const task of entry.tasks) {
+        tasks.push({
+          title: task.title,
+          status: task.status,
+          priority: task.priority,
+          deadline: task.deadlineText ?? "无"
+        });
+      }
+      continue;
+    }
+    const raw = entry.entryAnalysis?.rawAiResult as { tasks?: Array<{ title?: string; priority?: "low" | "medium" | "high"; deadlineText?: string; sourceText?: string }> } | null | undefined;
+    for (const task of raw?.tasks ?? []) {
+      if (!task.title) continue;
+      tasks.push({
+        title: task.title,
+        status: "todo",
+        priority: task.priority ?? "low",
+        deadline: task.deadlineText ?? "无"
+      });
+    }
+  }
 
   return (
     <Panel title="AI 任务列表" subtitle="来自 entry 分析结果的最小任务视图。">

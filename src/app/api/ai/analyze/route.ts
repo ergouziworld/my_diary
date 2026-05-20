@@ -4,6 +4,7 @@ import { getUserId } from "@/lib/auth";
 import { analyzeEntry } from "@/server/ai/aiService";
 import {
   memoryFindEntry,
+  memoryReplaceFinanceItems,
   memoryReplaceEmotions,
   memoryReplaceTasks,
   memoryReplaceWorkItems,
@@ -20,6 +21,10 @@ function mapWorkCategory(type: string) {
   if (type === "development") return "coding";
   if (type === "study" || type === "course" || type === "competition") return type;
   return "work";
+}
+
+function normalizeAmountText(amountText: string) {
+  return amountText.trim() || "无";
 }
 
 export async function POST(request: Request) {
@@ -126,6 +131,16 @@ export async function POST(request: Request) {
             }))
           });
         }
+
+        await tx.entryAnalysis.update({
+          where: { entryId },
+          data: {
+            rawAiResult: {
+              ...result,
+              financeItems: result.financeItems
+            }
+          }
+        });
       });
     } catch {
       memoryUpsertAnalysis(entryId, {
@@ -166,6 +181,17 @@ export async function POST(request: Request) {
           title: item.title,
           description: item.description || null,
           status: "todo"
+        }))
+      );
+      memoryReplaceFinanceItems(
+        entryId,
+        result.financeItems.map((item) => ({
+          entryId,
+          title: item.title,
+          amountText: normalizeAmountText(item.amountText),
+          type: item.type,
+          category: item.category,
+          sourceText: item.sourceText
         }))
       );
     }
