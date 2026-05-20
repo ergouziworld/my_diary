@@ -122,6 +122,30 @@ function normalizeResult(value: unknown): EntryAnalyzeResult | null {
   };
 }
 
+function fillEmotionsFromAiOutput(result: EntryAnalyzeResult): EntryAnalyzeResult {
+  if (result.emotions.length) return result;
+
+  const sourceText = `${result.summary} ${result.tags.join(" ")}`;
+  const emotions: EntryAnalyzeResult["emotions"] = [];
+  const seen = new Set<string>();
+
+  const addEmotion = (name: string, reason: string, intensity = 0.7) => {
+    if (seen.has(name)) return;
+    emotions.push({ name, reason, intensity });
+    seen.add(name);
+  };
+
+  if (/嫉妒/.test(sourceText)) addEmotion("嫉妒", "AI 在摘要或标签中明确表达嫉妒", 0.8);
+  if (/不开心|难受/.test(sourceText)) addEmotion("不开心", "AI 在摘要或标签中明确表达不开心或难受", 0.7);
+  if (/烦躁|烦/.test(sourceText)) addEmotion("烦躁", "AI 在摘要或标签中明确表达烦躁", 0.7);
+  if (/委屈/.test(sourceText)) addEmotion("委屈", "AI 在摘要或标签中明确表达委屈", 0.7);
+  if (/生气/.test(sourceText)) addEmotion("生气", "AI 在摘要或标签中明确表达生气", 0.7);
+  if (/开心/.test(sourceText)) addEmotion("开心", "AI 在摘要或标签中明确表达开心", 0.7);
+  if (/成就感/.test(sourceText)) addEmotion("成就感", "AI 在摘要或标签中明确表达成就感", 0.7);
+
+  return emotions.length ? { ...result, emotions } : result;
+}
+
 export class QwenProvider {
   name = "qwen" as const;
   private readonly baseUrl: string;
@@ -152,7 +176,7 @@ export class QwenProvider {
           { role: "user", content: input.content }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.2
+        temperature: 0
       })
     });
 
@@ -172,6 +196,6 @@ export class QwenProvider {
       throw new Error("AI response was not valid JSON.");
     }
 
-    return normalized;
+    return fillEmotionsFromAiOutput(normalized);
   }
 }

@@ -1,0 +1,11 @@
+
+> my_diary@0.11.0 dev
+> next dev --port 3000 --hostname 127.0.0.1
+
+   ▲ Next.js 15.5.18
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.8s

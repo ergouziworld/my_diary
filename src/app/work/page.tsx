@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <div className="space-y-6">
-      <SectionHeader title="工作 / 学习" description="优先读取 AI 提取的 workItems 与相关 entry。" />
+      <SectionHeader title="工作 / 学习" description="读取 workItems 与相关分析结果。"/>
       <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
         <WorkContent />
       </Suspense>
@@ -20,32 +20,16 @@ export default function Page() {
 
 async function WorkContent() {
   const entries = await listEntries();
-  const items = entries.flatMap((entry) => {
-    if (entry.workItems.length) {
-      return entry.workItems.map((item) => ({
-        title: item.title,
-        projectName: item.projectName ?? null,
-        category: item.category,
-        description: item.description ?? null,
-        status: item.status,
-        entryId: entry.id
-      }));
-    }
-    const raw = entry.entryAnalysis?.rawAiResult as
-      | { workItems?: Array<{ project?: string; type?: string; title?: string; description?: string }> }
-      | null
-      | undefined;
-    return (raw?.workItems ?? [])
-      .map((item) => ({
-        title: item.title ?? "",
-        projectName: item.project ?? null,
-        category: item.type === "development" ? "coding" : (item.type ?? "work"),
-        description: item.description ?? null,
-        status: "todo",
-        entryId: entry.id
-      }))
-      .filter((item) => item.title.length > 0);
-  });
+  const items = entries.flatMap((entry) =>
+    entry.workItems.map((item) => ({
+      title: item.title,
+      projectName: item.projectName ?? null,
+      category: item.category,
+      description: item.description ?? null,
+      status: item.status,
+      entryId: entry.id
+    }))
+  );
 
   const summaryCount = items.length;
   const studyCount = items.filter((item) => item.category === "study" || item.category === "course").length;
@@ -55,13 +39,13 @@ async function WorkContent() {
   return (
     <>
       <section className="grid gap-4 md:grid-cols-4">
-        <MetricCard label="工作学习条目" value={String(summaryCount)} hint="来自 entry 的 workItems" />
+        <MetricCard label="工作学习条目" value={String(summaryCount)} hint="来自 workItems" />
         <MetricCard label="学习项" value={String(studyCount)} hint="study / course" />
         <MetricCard label="开发项" value={String(codingCount)} hint="development -> coding" />
-        <MetricCard label="项目项" value={String(projectCount)} hint="project 相关内容" />
+        <MetricCard label="项目项" value={String(projectCount)} hint="project" />
       </section>
 
-      <Panel title="工作学习条目" subtitle="页面只读数据库结果，不直接调用 AI。">
+      <Panel title="工作学习明细" subtitle="项目、分类、标题与说明。">
         <div className="space-y-3">
           {items.length ? (
             items.map((item) => (

@@ -9,4 +9,3 @@
 - Reused `Task`, `Tag`, and `EntryTag` for extracted data.
 - Connected homepage entry submission to save + analyze flow.
 - Updated task, mood, and timeline pages to read persisted AI data.
-
