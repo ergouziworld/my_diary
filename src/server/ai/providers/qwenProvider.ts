@@ -59,7 +59,10 @@ export class QwenProvider {
       throw new Error("Empty AI response");
     }
 
-    const normalized = normalizeEntryAnalyzeResult(safeParseJson(content));
+    const parsed = safeParseJson(content);
+    console.log("[Qwen raw]", JSON.stringify(parsed, null, 2));
+
+    const normalized = normalizeEntryAnalyzeResult(parsed);
     if (!normalized) {
       throw new Error("AI response was not valid JSON.");
     }

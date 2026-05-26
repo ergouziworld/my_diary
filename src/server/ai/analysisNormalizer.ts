@@ -33,59 +33,85 @@ export function normalizeEntryAnalyzeResult(value: unknown): EntryAnalyzeResult 
 
   const emotions: EntryAnalyzeResult["emotions"] = Array.isArray(record.emotions)
     ? record.emotions
-        .map(asObject)
-        .filter((item): item is Record<string, unknown> => Boolean(item))
-        .map((item) => ({
-          name: typeof item.name === "string" ? item.name : "",
-          intensity: typeof item.intensity === "number" ? item.intensity : 0,
-          reason: typeof item.reason === "string" ? item.reason : ""
-        }))
-        .filter((item) => item.name.length > 0)
+        .map((item) => {
+          if (typeof item === "string" && item.length > 0) {
+            return { name: item, intensity: 0.5, reason: "" };
+          }
+          const obj = asObject(item);
+          if (!obj) return null;
+          const name = typeof obj.name === "string" ? obj.name : "";
+          if (!name.length) return null;
+          return {
+            name,
+            intensity: typeof obj.intensity === "number" ? obj.intensity : 0.5,
+            reason: typeof obj.reason === "string" ? obj.reason : ""
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
     : [];
 
   const tasks: EntryAnalyzeResult["tasks"] = Array.isArray(record.tasks)
     ? record.tasks
-        .map(asObject)
-        .filter((item): item is Record<string, unknown> => Boolean(item))
-        .map((item) => ({
-          title: typeof item.title === "string" ? item.title : "",
-          priority: (
-            item.priority === "high" || item.priority === "medium" || item.priority === "low" ? item.priority : "low"
-          ) as "low" | "medium" | "high",
-          deadlineText: typeof item.deadlineText === "string" ? item.deadlineText : "",
-          sourceText: typeof item.sourceText === "string" ? item.sourceText : ""
-        }))
-        .filter((item) => item.title.length > 0)
+        .map((item) => {
+          if (typeof item === "string" && item.length > 0) {
+            return { title: item, priority: "medium" as const, deadlineText: "", sourceText: "" };
+          }
+          const obj = asObject(item);
+          if (!obj) return null;
+          const title = typeof obj.title === "string" ? obj.title : "";
+          if (!title.length) return null;
+          return {
+            title,
+            priority: (obj.priority === "high" || obj.priority === "low" ? obj.priority : "medium") as "low" | "medium" | "high",
+            deadlineText: typeof obj.deadlineText === "string" ? obj.deadlineText : "",
+            sourceText: typeof obj.sourceText === "string" ? obj.sourceText : ""
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
     : [];
 
   const workItems: EntryAnalyzeResult["workItems"] = Array.isArray(record.workItems)
     ? record.workItems
-        .map(asObject)
-        .filter((item): item is Record<string, unknown> => Boolean(item))
-        .map((item): EntryAnalyzeResult["workItems"][number] => ({
-          project: typeof item.project === "string" ? item.project : "",
-          type:
-            item.type === "development" || item.type === "study" || item.type === "competition" || item.type === "course"
-              ? item.type
-              : "other",
-          title: typeof item.title === "string" ? item.title : "",
-          description: typeof item.description === "string" ? item.description : ""
-        }))
-        .filter((item) => item.title.length > 0)
+        .map((item) => {
+          if (typeof item === "string" && item.length > 0) {
+            return { project: "", type: "other" as const, title: item, description: "" };
+          }
+          const obj = asObject(item);
+          if (!obj) return null;
+          const title = typeof obj.title === "string" ? obj.title : (typeof obj.name === "string" ? obj.name : "");
+          if (!title.length) return null;
+          return {
+            project: typeof obj.project === "string" ? obj.project : "",
+            type: (obj.type === "development" || obj.type === "study" || obj.type === "competition" || obj.type === "course" ? obj.type : "other") as EntryAnalyzeResult["workItems"][number]["type"],
+            title,
+            description: typeof obj.description === "string" ? obj.description : ""
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
     : [];
 
   const financeItems: EntryAnalyzeResult["financeItems"] = Array.isArray(record.financeItems)
     ? record.financeItems
         .map(asObject)
         .filter((item): item is Record<string, unknown> => Boolean(item))
-        .map((item) => ({
-          title: typeof item.title === "string" ? item.title : "",
-          amountText: typeof item.amountText === "string" ? item.amountText : "",
-          type: item.type === "income" ? ("income" as const) : ("expense" as const),
-          category: typeof item.category === "string" ? item.category : "",
-          sourceText: typeof item.sourceText === "string" ? item.sourceText : ""
-        }))
-        .filter((item) => item.title.length > 0)
+        .map((item) => {
+          // 兼容 Qwen 返回的 amount(number)/source 字段，以及标准的 amountText/title 字段
+          const title = typeof item.title === "string" ? item.title
+            : typeof item.source === "string" ? item.source
+            : typeof item.category === "string" ? item.category : "";
+          const amountText = typeof item.amountText === "string" ? item.amountText
+            : typeof item.amount === "number" ? String(item.amount)
+            : typeof item.amount === "string" ? item.amount : "";
+          if (!amountText) return null;
+          return {
+            title: title || (item.type === "income" ? "收入" : "支出"),
+            amountText,
+            type: item.type === "income" ? ("income" as const) : ("expense" as const),
+            category: typeof item.category === "string" ? item.category : (typeof item.source === "string" ? item.source : ""),
+            sourceText: typeof item.sourceText === "string" ? item.sourceText : ""
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null)
     : [];
 
   return {

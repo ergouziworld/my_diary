@@ -1,9 +1,8 @@
 "use client";
-
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type AnalysisResult = {
+type AnalysisResult = { 
   summary: string;
   compressedMemory: string;
   tags: string[];

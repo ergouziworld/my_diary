@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./prisma/dev.db"
 }
 
 enum InputType {
@@ -110,6 +110,7 @@ model User {
   dailySummaries  DailySummary[]
   vectorDocuments VectorDocument[]
   albumItems      AlbumItem[]
+  financeItems    FinanceItem[]
 }
 
 model Entry {
@@ -136,7 +137,8 @@ model Entry {
   entryTags   EntryTag[]
   entryPeople EntryPerson[]
   vectorDocuments VectorDocument[]
-  albumItems  AlbumItem[]
+  albumItems   AlbumItem[]
+  financeItems FinanceItem[]
   @@index([userId, createdAt])
 }
 
@@ -408,6 +410,24 @@ model VectorDocument {
   attachment  Attachment?  @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
 
   @@index([userId, sourceType, createdAt])
+}
+
+model FinanceItem {
+  id         String   @id @default(cuid())
+  userId     String
+  entryId    String?
+  title      String
+  amountText String
+  type       String
+  category   String?
+  sourceText String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entry Entry? @relation(fields: [entryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
 }
 
 model AlbumItem {
