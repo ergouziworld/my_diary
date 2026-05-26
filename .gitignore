@@ -1,5 +1,8 @@
 ﻿node_modules
 .next
 .env
+.env.local
+.env*.local
 codex_my_diary_deploy
 codex_my_diary_deploy.pub
+.claude/

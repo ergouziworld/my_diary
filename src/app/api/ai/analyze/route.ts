@@ -18,9 +18,10 @@ function jsonError(message: string, status = 400) {
   return NextResponse.json({ ok: false, error: message }, { status });
 }
 
-function mapWorkCategory(type: string) {
+function mapWorkCategory(type: string, entryTypes: string[] = []) {
   if (type === "development") return "coding";
   if (type === "study" || type === "course" || type === "competition") return type;
+  if (type === "other" && (entryTypes.includes("study") || entryTypes.includes("life"))) return "study";
   return "work";
 }
 
@@ -60,6 +61,14 @@ export async function POST(request: Request) {
     }
 
     const { provider, result } = await analyzeEntry({ entryId, content, type: "text" });
+
+    // 当 AI 识别为 study/work 但 workItems 为空时，从 timelineTitle 自动合成一条
+    const needsStudyItem = result.workItems.length === 0 &&
+      (result.entryTypes.includes("study") || result.entryTypes.includes("work"));
+    if (needsStudyItem && result.timelineTitle) {
+      const autoType = result.entryTypes.includes("study") ? "study" : "other";
+      result.workItems.push({ project: "", type: autoType as never, title: result.timelineTitle, description: result.summary });
+    }
 
     try {
       await prisma.$transaction(async (tx) => {
@@ -135,7 +144,7 @@ export async function POST(request: Request) {
             data: result.workItems.map((item) => ({
               userId,
               entryId,
-              category: mapWorkCategory(item.type),
+              category: mapWorkCategory(item.type, result.entryTypes),
               projectName: item.project || null,
               title: item.title,
               description: item.description || null,
@@ -144,15 +153,20 @@ export async function POST(request: Request) {
           });
         }
 
-        await tx.entryAnalysis.update({
-          where: { entryId },
-          data: {
-            rawAiResult: {
-              ...result,
-              financeItems: result.financeItems
-            }
-          }
-        });
+        await tx.financeItem.deleteMany({ where: { entryId } });
+        if (result.financeItems.length) {
+          await tx.financeItem.createMany({
+            data: result.financeItems.map((item) => ({
+              userId,
+              entryId,
+              title: item.title,
+              amountText: item.amountText,
+              type: item.type,
+              category: item.category || null,
+              sourceText: item.sourceText || null
+            }))
+          });
+        }
       });
     } catch {
       memoryUpsertAnalysis(entryId, {
@@ -188,7 +202,7 @@ export async function POST(request: Request) {
         result.workItems.map((item) => ({
           userId,
           entryId,
-          category: mapWorkCategory(item.type) as never,
+          category: mapWorkCategory(item.type, result.entryTypes) as never,
           projectName: item.project || null,
           title: item.title,
           description: item.description || null,
