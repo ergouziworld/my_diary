@@ -91,7 +91,7 @@ export function RichInputBox({ onFocusChange }: { onFocusChange?: (v: boolean) =
       const entryId = saved.data?.id;
       if (entryId) {
         setStatus("AI 分析中...");
-        void fetch("/api/ai/analyze", {
+        await fetch("/api/ai/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ entryId, content: rawContent, type: "text" })
