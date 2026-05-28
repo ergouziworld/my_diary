@@ -110,10 +110,9 @@ export function RichInputBox() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3 h-full">
       <textarea
-        rows={7}
-        className="w-full resize-none rounded-2xl border border-white/10 bg-transparent p-4 text-base text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/30 transition"
+        className="flex-1 min-h-0 w-full resize-none bg-transparent p-0 text-lg text-white outline-none placeholder:text-slate-700 transition leading-relaxed"
         placeholder="今天发生了什么？"
         value={content}
         onChange={(e) => setContent(e.target.value)}
