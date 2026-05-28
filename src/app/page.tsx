@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { BigInputBox } from "@/components/entry/BigInputBox";
 import { SmallAiBox } from "@/components/entry/SmallAiBox";
@@ -9,64 +10,98 @@ import pkg from "../../package.json";
 
 export const dynamic = "force-dynamic";
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view } = await searchParams;
+  const isTimeline = view === "timeline";
+
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_35%),linear-gradient(180deg,_rgba(15,23,42,0.96),_rgba(15,23,42,0.82))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.25)] md:p-8">
-        <div className="flex items-start justify-between gap-4">
-          <div className="max-w-4xl space-y-5">
-            <div className="flex flex-wrap gap-2">
-              <Pill tone="accent">AI 日记</Pill>
-              <Pill tone="good">快速输入</Pill>
-              <Pill tone="neutral">长期记忆</Pill>
-              <Pill tone="neutral">v{pkg.version}</Pill>
+    <div className="space-y-6">
+      <div className="flex gap-1 rounded-2xl border border-white/10 bg-white/5 p-1 w-fit">
+        <Link
+          href="/"
+          className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
+            !isTimeline ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:text-white"
+          }`}
+        >
+          概览
+        </Link>
+        <Link
+          href="/?view=timeline"
+          className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
+            isTimeline ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:text-white"
+          }`}
+        >
+          时间线
+        </Link>
+      </div>
+
+      {isTimeline ? (
+        <Suspense fallback={<Panel title="时间线" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
+          <TimelineView />
+        </Suspense>
+      ) : (
+        <div className="space-y-8">
+          <section className="overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_35%),linear-gradient(180deg,_rgba(15,23,42,0.96),_rgba(15,23,42,0.82))] p-6 shadow-[0_24px_90px_rgba(0,0,0,0.25)] md:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div className="max-w-4xl space-y-5">
+                <div className="flex flex-wrap gap-2">
+                  <Pill tone="accent">AI 日记</Pill>
+                  <Pill tone="good">快速输入</Pill>
+                  <Pill tone="neutral">长期记忆</Pill>
+                  <Pill tone="neutral">v{pkg.version}</Pill>
+                </div>
+                <div className="space-y-3">
+                  <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">把生活变成可检索的第二大脑</h1>
+                  <p className="max-w-3xl text-base leading-7 text-slate-300 md:text-lg">
+                    记录一条，自动沉淀为摘要、标签、情绪、任务、时间线和人物关系。首页先展示壳子，再等数据回来。
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200">
+                v{pkg.version}
+              </div>
             </div>
-            <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">把生活变成可检索的第二大脑</h1>
-              <p className="max-w-3xl text-base leading-7 text-slate-300 md:text-lg">
-                记录一条，自动沉淀为摘要、标签、情绪、任务、时间线和人物关系。首页先展示壳子，再等数据回来。
-              </p>
-            </div>
+          </section>
+
+          <section className="grid gap-4 md:grid-cols-4">
+            <Suspense fallback={<MetricCard label="今日记录" value="..." hint="加载中" />}>
+              <EntryMetrics />
+            </Suspense>
+          </section>
+
+          <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+            <Panel title="快速记一条" subtitle="先保存原文，再交给 AI 做结构化分析。">
+              <BigInputBox />
+            </Panel>
+
+            <SmallAiBox />
           </div>
-          <div className="shrink-0 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200">
-            v{pkg.version}
+
+          <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+            <Suspense fallback={<Panel title="最近记录" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
+              <RecentEntries />
+            </Suspense>
+
+            <Panel title="AI 助手" subtitle="用于后续扩展的入口位。">
+              <div className="space-y-3">
+                {["帮我总结", "提取任务", "分析情绪", "润色记录", "拆解计划"].map((item, index) => (
+                  <button
+                    key={item}
+                    className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-left text-sm text-white transition hover:border-cyan-400/40"
+                  >
+                    <span>{item}</span>
+                    <span className="text-slate-500">{index + 1}</span>
+                  </button>
+                ))}
+              </div>
+            </Panel>
           </div>
         </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-4">
-        <Suspense fallback={<MetricCard label="今日记录" value="..." hint="加载中" />}>
-          <EntryMetrics />
-        </Suspense>
-      </section>
-
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
-        <Panel title="快速记一条" subtitle="先保存原文，再交给 AI 做结构化分析。">
-          <BigInputBox />
-        </Panel>
-
-        <SmallAiBox />
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
-        <Suspense fallback={<Panel title="最近记录" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
-          <RecentEntries />
-        </Suspense>
-
-        <Panel title="AI 助手" subtitle="用于后续扩展的入口位。">
-          <div className="space-y-3">
-            {["帮我总结", "提取任务", "分析情绪", "润色记录", "拆解计划"].map((item, index) => (
-              <button
-                key={item}
-                className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-left text-sm text-white transition hover:border-cyan-400/40"
-              >
-                <span>{item}</span>
-                <span className="text-slate-500">{index + 1}</span>
-              </button>
-            ))}
-          </div>
-        </Panel>
-      </div>
+      )}
     </div>
   );
 }
@@ -117,6 +152,39 @@ async function RecentEntries() {
           ))
         ) : (
           <p className="text-sm text-slate-400">还没有 entry，先写一条吧。</p>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
+async function TimelineView() {
+  const entries = await listEntries();
+
+  return (
+    <Panel title="时间线" subtitle="把原文和摘要串起来。">
+      <div className="space-y-4">
+        {entries.length ? (
+          entries.map((entry) => {
+            const raw = entry.entryAnalysis?.rawAiResult as { timelineTitle?: string } | null | undefined;
+            const title = raw?.timelineTitle ?? entry.entryAnalysis?.summary ?? "未生成摘要";
+            return (
+              <div key={entry.id} className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 md:grid-cols-[96px_1fr]">
+                <div className="text-sm font-medium text-slate-300">
+                  {entry.createdAt.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-medium text-white">{title}</h3>
+                    <Pill tone="accent">{entry.type}</Pill>
+                  </div>
+                  <p className="text-sm leading-6 text-slate-300">{entry.entryAnalysis?.summary ?? entry.rawContent ?? ""}</p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-sm text-slate-400">暂无时间线数据。</p>
         )}
       </div>
     </Panel>

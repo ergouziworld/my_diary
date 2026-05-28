@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 
 const bottomLinks = [
   { href: "/", label: "首页", icon: "⊞" },
-  { href: "/timeline", label: "时间线", icon: "◎" },
-  { href: "/chat", label: "大 AI", icon: "✦" },
+  { href: "/record", label: "记录", icon: "◉" },
   { href: "/tasks", label: "任务", icon: "☑" },
+  { href: "/chat", label: "大 AI", icon: "✦" },
   { href: "/settings", label: "设置", icon: "⚙" },
 ] as const;
 
