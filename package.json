@@ -13,9 +13,11 @@
     },
     "dependencies": {
         "@prisma/client": "^6.0.0",
+        "@types/pdf-parse": "^1.1.5",
         "bcryptjs": "^3.0.3",
         "next": "^15.0.0",
         "next-auth": "^4.24.14",
+        "pdf-parse": "^2.4.5",
         "react": "^19.0.0",
         "react-dom": "^19.0.0"
     },

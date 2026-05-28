@@ -1,0 +1,238 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, useRef } from "react";
+
+type AttachmentItem = {
+  id: string;
+  url: string;
+  type: "image" | "file" | "link";
+  name: string;
+  description: string;
+};
+
+export function RichInputBox() {
+  const router = useRouter();
+  const [content, setContent] = useState("");
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
+  const [linkInput, setLinkInput] = useState("");
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const docInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileUpload(file: File) {
+    setUploading(true);
+    setStatus("上传中...");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = (await res.json()) as { ok: boolean; data?: AttachmentItem; error?: string };
+      if (data.ok && data.data) {
+        setAttachments((prev) => [...prev, data.data!]);
+        setStatus("");
+      } else {
+        setStatus(data.error ?? "上传失败");
+      }
+    } catch {
+      setStatus("上传失败");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function addLink() {
+    const url = linkInput.trim();
+    if (!url) return;
+    setAttachments((prev) => [
+      ...prev,
+      { id: `link-${Date.now()}`, url, type: "link", name: url, description: url }
+    ]);
+    setLinkInput("");
+    setShowLinkInput(false);
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  async function handleSubmit() {
+    if (!content.trim() && attachments.length === 0) return;
+    if (loading || uploading) return;
+
+    setLoading(true);
+    setStatus("保存中...");
+
+    const parts: string[] = [];
+    if (content.trim()) parts.push(content.trim());
+    attachments.forEach((att) => {
+      if (att.type === "image") parts.push(`[图片：${att.description}]`);
+      else if (att.type === "link") parts.push(`[链接：${att.description}]`);
+      else parts.push(`[文件：${att.description}]`);
+    });
+    const rawContent = parts.join("\n\n");
+
+    try {
+      const savedRes = await fetch("/api/entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rawContent, type: "text" })
+      });
+      const saved = (await savedRes.json()) as { ok: boolean; data?: { id?: string }; error?: string };
+
+      if (!saved.ok) {
+        setStatus(saved.error ?? "保存失败");
+        return;
+      }
+
+      const entryId = saved.data?.id;
+      if (entryId) {
+        setStatus("AI 分析中...");
+        void fetch("/api/ai/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entryId, content: rawContent, type: "text" })
+        });
+      }
+
+      setContent("");
+      setAttachments([]);
+      setStatus("已保存 ✓");
+      router.refresh();
+    } catch {
+      setStatus("提交失败，请重试");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <textarea
+        rows={4}
+        className="w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40 transition"
+        placeholder="今天发生了什么？也可以附上图片、文档或链接…"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSubmit();
+        }}
+      />
+
+      {/* 附件预览 */}
+      {attachments.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {attachments.map((att) => (
+            <div
+              key={att.id}
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300"
+            >
+              {att.type === "image" ? (
+                <img src={att.url} alt="" className="h-7 w-7 rounded-lg object-cover shrink-0" />
+              ) : (
+                <span className="text-base leading-none">{att.type === "link" ? "🔗" : "📄"}</span>
+              )}
+              <span className="max-w-[140px] truncate">{att.description || att.name}</span>
+              <button
+                type="button"
+                onClick={() => removeAttachment(att.id)}
+                className="ml-1 text-slate-500 hover:text-rose-400 transition"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 链接输入 */}
+      {showLinkInput && (
+        <div className="flex gap-2">
+          <input
+            className="flex-1 rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/40"
+            placeholder="粘贴链接..."
+            value={linkInput}
+            onChange={(e) => setLinkInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addLink()}
+            autoFocus
+          />
+          <button
+            type="button"
+            onClick={addLink}
+            className="rounded-xl bg-cyan-400/20 px-3 py-2 text-xs text-cyan-300 hover:bg-cyan-400/30 transition"
+          >
+            确认
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowLinkInput(false)}
+            className="rounded-xl bg-white/5 px-3 py-2 text-xs text-slate-400 hover:bg-white/10 transition"
+          >
+            取消
+          </button>
+        </div>
+      )}
+
+      {/* 工具栏 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { if (e.target.files?.[0]) void handleFileUpload(e.target.files[0]); e.target.value = ""; }}
+          />
+          <input
+            ref={docInputRef}
+            type="file"
+            accept=".pdf,.txt,.doc,.docx"
+            className="hidden"
+            onChange={(e) => { if (e.target.files?.[0]) void handleFileUpload(e.target.files[0]); e.target.value = ""; }}
+          />
+          <button
+            type="button"
+            title="上传图片"
+            disabled={uploading}
+            onClick={() => imageInputRef.current?.click()}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10 disabled:opacity-40"
+          >
+            📷
+          </button>
+          <button
+            type="button"
+            title="上传文档"
+            disabled={uploading}
+            onClick={() => docInputRef.current?.click()}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10 disabled:opacity-40"
+          >
+            📎
+          </button>
+          <button
+            type="button"
+            title="添加链接"
+            onClick={() => setShowLinkInput((v) => !v)}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
+          >
+            🔗
+          </button>
+          {(uploading || status) && (
+            <span className="ml-2 text-xs text-slate-400">{status}</span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          disabled={loading || uploading}
+          onClick={() => void handleSubmit()}
+          className="rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? "处理中..." : "记录"}
+        </button>
+      </div>
+    </div>
+  );
+}

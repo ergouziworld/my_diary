@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { BigInputBox } from "@/components/entry/BigInputBox";
+import { RichInputBox } from "@/components/entry/RichInputBox";
 import { SmallAiBox } from "@/components/entry/SmallAiBox";
 import { MetricCard } from "@/components/common/MetricCard";
 import { Panel } from "@/components/common/Panel";
@@ -44,15 +44,16 @@ export default async function HomePage({
         </Suspense>
       ) : (
         <div className="space-y-5">
+          <div className="rounded-[2rem] border border-white/10 bg-slate-900/60 p-4">
+            <p className="mb-3 text-xs text-slate-500">今天发生了什么？支持图片、文档、链接</p>
+            <RichInputBox />
+          </div>
+
           <section className="grid grid-cols-2 gap-3">
             <Suspense fallback={<><MetricCard label="今日记录" value="..." hint="" /><MetricCard label="待办任务" value="..." hint="" /><MetricCard label="情绪记录" value="..." hint="" /><MetricCard label="AI 总结" value="..." hint="" /></>}>
               <EntryMetrics />
             </Suspense>
           </section>
-
-          <Panel title="快速记一条" subtitle="先保存原文，再交给 AI 做结构化分析。">
-            <BigInputBox />
-          </Panel>
 
           <SmallAiBox />
 
