@@ -1,21 +1,26 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RichInputBox } from "./RichInputBox";
 
 export function HomeInputSection() {
   const [focused, setFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  function handleFocusChange(v: boolean) {
-    setFocused(v);
-    if (v) {
-      // 等键盘弹起动画完成后，让容器顶部对齐视口顶部
-      setTimeout(() => {
-        containerRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
-      }, 300);
-    }
-  }
+  // 键盘弹起时 visualViewport 会 resize，此时再对齐到容器顶部
+  useEffect(() => {
+    if (!focused) return;
+
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handler = () => {
+      containerRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+    };
+
+    vv.addEventListener("resize", handler);
+    return () => vv.removeEventListener("resize", handler);
+  }, [focused]);
 
   return (
     <div
@@ -31,7 +36,7 @@ export function HomeInputSection() {
         <h2 className="text-2xl font-semibold text-white">今天</h2>
         <p className="mt-0.5 text-sm text-slate-500">支持图片 · 文档 · 链接</p>
       </div>
-      <RichInputBox onFocusChange={handleFocusChange} />
+      <RichInputBox onFocusChange={setFocused} />
     </div>
   );
 }
