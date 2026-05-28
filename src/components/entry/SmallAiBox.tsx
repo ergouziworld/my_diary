@@ -2,12 +2,6 @@
 
 import { useState } from "react";
 
-type ChatResult = {
-  answer: string;
-  provider: string;
-  model: string;
-};
-
 const quickQuestions = [
   "怎么快速进入状态？",
   "我现在有点焦虑，怎么办？",
@@ -44,16 +38,23 @@ export function SmallAiBox() {
         body: JSON.stringify({ question: text })
       });
 
-      const payload = (await response.json()) as
-        | { ok: true; result: { output: ChatResult } }
-        | { ok: false; error: string };
-
-      if (!response.ok || !payload.ok) {
-        setAnswer(!payload.ok ? payload.error : "回答失败。");
+      if (!response.ok || !response.body) {
+        const payload = (await response.json()) as { error?: string };
+        setAnswer(payload.error ?? "回答失败。");
         return;
       }
 
-      setAnswer(trimToLimit(payload.result.output.answer, 30));
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let full = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        full += decoder.decode(value, { stream: true });
+      }
+
+      setAnswer(trimToLimit(full, 30));
     } catch {
       setAnswer("请求失败。");
     } finally {
