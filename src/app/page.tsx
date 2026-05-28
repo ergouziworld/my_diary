@@ -44,8 +44,11 @@ export default async function HomePage({
         </Suspense>
       ) : (
         <div className="space-y-5">
-          <div className="rounded-[2rem] border border-white/10 bg-slate-900/60 p-4">
-            <p className="mb-3 text-xs text-slate-500">今天发生了什么？支持图片、文档、链接</p>
+          <div className="rounded-[2rem] border border-cyan-400/15 bg-[radial-gradient(ellipse_at_top,_rgba(34,211,238,0.07),_transparent_60%)] p-5 shadow-[0_0_40px_rgba(34,211,238,0.04)]">
+            <div className="mb-1 flex items-center gap-2">
+              <span className="text-lg font-semibold text-white">记录</span>
+              <span className="text-xs text-slate-500">支持图片 · 文档 · 链接</span>
+            </div>
             <RichInputBox />
           </div>
 
