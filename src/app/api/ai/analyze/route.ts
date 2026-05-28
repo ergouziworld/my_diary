@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     if (!entryId) return jsonError("entryId is required");
     if (!content) return jsonError("content cannot be empty");
 
-    const userId = getUserId();
+    const userId = await getUserId();
     let entry = null;
     try {
       entry = await prisma.entry.findFirst({ where: { id: entryId, userId } });

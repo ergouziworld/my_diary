@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   } catch {
     const entry = memoryCreateEntry({
       id: crypto.randomUUID(),
-      userId: getUserId(),
+      userId: await getUserId(),
       rawContent: value.rawContent.trim(),
       contentText: value.rawContent.trim(),
       type: "text",
