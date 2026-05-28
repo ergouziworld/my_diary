@@ -11,7 +11,7 @@ type AttachmentItem = {
   description: string;
 };
 
-export function RichInputBox() {
+export function RichInputBox({ onFocusChange }: { onFocusChange?: (v: boolean) => void }) {
   const router = useRouter();
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
@@ -116,6 +116,8 @@ export function RichInputBox() {
         placeholder="今天发生了什么？"
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        onFocus={() => onFocusChange?.(true)}
+        onBlur={() => onFocusChange?.(false)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSubmit();
         }}
