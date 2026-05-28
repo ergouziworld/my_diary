@@ -3,7 +3,7 @@ import { sidebarLinks } from "@/components/layout/navigation";
 
 export function AppSidebar() {
   return (
-    <aside className="w-60 border-r border-white/10 p-4 text-sm text-slate-300">
+    <aside className="hidden w-60 border-r border-white/10 p-4 text-sm text-slate-300 md:block">
       <div className="mb-6 text-lg font-semibold text-white">My Diary</div>
       <nav className="space-y-2">
         {sidebarLinks.map((item) => (
