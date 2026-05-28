@@ -110,7 +110,7 @@ export function RichInputBox() {
   }
 
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-1 flex-col gap-3 min-h-0">
       <textarea
         className="flex-1 min-h-0 w-full resize-none bg-transparent p-0 text-lg text-white outline-none placeholder:text-slate-700 transition leading-relaxed"
         placeholder="今天发生了什么？"
@@ -176,7 +176,7 @@ export function RichInputBox() {
       )}
 
       {/* 工具栏 */}
-      <div className="flex items-center justify-between">
+      <div className="mt-auto shrink-0 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <input
             ref={imageInputRef}
