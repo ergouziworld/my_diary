@@ -32,29 +32,20 @@ export function SmallAiBox() {
     setAnswer("AI 思考中...");
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/smallai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: text })
       });
 
-      if (!response.ok || !response.body) {
-        const payload = (await response.json()) as { error?: string };
+      const payload = (await response.json()) as { ok: boolean; answer?: string; error?: string };
+
+      if (!response.ok || !payload.ok) {
         setAnswer(payload.error ?? "回答失败。");
         return;
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let full = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        full += decoder.decode(value, { stream: true });
-      }
-
-      setAnswer(trimToLimit(full, 30));
+      setAnswer(trimToLimit(payload.answer ?? "", 30));
     } catch {
       setAnswer("请求失败。");
     } finally {
