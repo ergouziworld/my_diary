@@ -112,9 +112,9 @@ export function RichInputBox() {
   return (
     <div className="space-y-3">
       <textarea
-        rows={4}
-        className="w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/40 transition"
-        placeholder="今天发生了什么？也可以附上图片、文档或链接…"
+        rows={7}
+        className="w-full resize-none rounded-2xl border border-white/10 bg-transparent p-4 text-base text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/30 transition"
+        placeholder="今天发生了什么？"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
