@@ -20,7 +20,7 @@ export default function Page() {
 }
 
 async function FinanceContent() {
-  const userId = getUserId();
+  const userId = await getUserId();
   let items: Array<{
     id: string;
     title: string;

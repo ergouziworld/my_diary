@@ -5,4 +5,7 @@
 .env*.local
 codex_my_diary_deploy
 codex_my_diary_deploy.pub
+codex_ecs_deploy_8_141_104_133
+codex_ecs_deploy_8_141_104_133.pub
+*.db
 .claude/

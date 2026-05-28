@@ -22,7 +22,7 @@ export default function Page() {
     if (!text || loading) return;
 
     setLoading(true);
-    setAnswer("AI 正在思考...");
+    setAnswer("");
 
     try {
       const response = await fetch("/api/chat", {
@@ -31,16 +31,21 @@ export default function Page() {
         body: JSON.stringify({ question: text })
       });
 
-      const payload = (await response.json()) as
-        | { ok: true; result: { output: { answer: string }; provider: string; model: string } }
-        | { ok: false; error: string };
-
-      if (!response.ok || !payload.ok) {
-        setAnswer(!payload.ok ? payload.error : "AI 返回失败。");
+      if (!response.ok || !response.body) {
+        const payload = (await response.json()) as { error?: string };
+        setAnswer(payload.error ?? "AI 返回失败。");
         return;
       }
 
-      setAnswer(`${payload.result.output.answer}\n\n来源：${payload.result.provider}/${payload.result.model}`);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        setAnswer((prev) => prev + chunk);
+      }
     } catch {
       setAnswer("请求失败，请检查后端服务和 AI 配置。");
     } finally {
@@ -95,7 +100,7 @@ export default function Page() {
         </Panel>
 
         <Panel title="回答草稿" subtitle="这里显示 AI 的最终结论，后续可以拆成证据、建议和下一步。">
-          <div className="whitespace-pre-wrap text-sm leading-6 text-slate-300">{answer}</div>
+          <div className="h-96 overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-slate-300 pr-2">{answer}</div>
         </Panel>
       </div>
     </div>

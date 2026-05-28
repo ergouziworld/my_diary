@@ -177,7 +177,7 @@ class OpenAiCompatibleProducer implements AiProducer {
     return [
       {
         role: "system",
-        content: "你是一个个人小 AI。请严格只输出 JSON，回答要尽量短，默认不超过 30 个汉字。不要输出多余解释。"
+        content: "你是用户的私人 AI 助理，了解他的日记和生活记录。请认真、详细地回答用户的问题，回答长度和 ChatGPT 保持一致，需要多长就多长。只输出 JSON，answer 字段填写完整回答内容，支持换行。"
       },
       {
         role: "user",

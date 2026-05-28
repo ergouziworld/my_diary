@@ -49,8 +49,9 @@ export type CreateEntryInput = {
 };
 
 export async function createEntry(input: CreateEntryInput): Promise<EntryRecord> {
+  const userId = await getUserId();
   const data = {
-    userId: getUserId(),
+    userId,
     rawContent: input.rawContent,
     contentText: input.rawContent,
     type: input.type,
@@ -80,9 +81,10 @@ export async function createEntry(input: CreateEntryInput): Promise<EntryRecord>
 }
 
 export const listEntries = cache(async function listEntries(): Promise<EntryRecord[]> {
+  const userId = await getUserId();
   try {
     const entries = await prisma.entry.findMany({
-      where: { userId: getUserId() },
+      where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
         entryAnalysis: true,
@@ -102,6 +104,6 @@ export const listEntries = cache(async function listEntries(): Promise<EntryReco
       workItems: entry.workItems
     })) as EntryRecord[];
   } catch {
-    return memoryListEntries(getUserId());
+    return memoryListEntries(userId);
   }
 });
