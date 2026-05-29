@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { createEntry, listEntries } from "@/server/entries";
-import { memoryCreateEntry } from "@/server/memoryStore";
-import { getUserId } from "@/lib/auth";
 
 export async function GET() {
   const data = await listEntries();
@@ -35,25 +33,8 @@ export async function POST(req: Request) {
         createdAt: entry.createdAt
       }
     });
-  } catch {
-    const entry = memoryCreateEntry({
-      id: crypto.randomUUID(),
-      userId: await getUserId(),
-      rawContent: value.rawContent.trim(),
-      contentText: value.rawContent.trim(),
-      type: "text",
-      inputType: "text",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    return NextResponse.json({
-      ok: true,
-      data: {
-        id: entry.id,
-        rawContent: entry.rawContent,
-        type: entry.type,
-        createdAt: entry.createdAt
-      }
-    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "保存失败，请重试";
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
