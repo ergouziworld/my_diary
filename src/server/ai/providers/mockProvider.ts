@@ -3,7 +3,19 @@ export type EntryAnalyzeResult = {
   memoryText: string;
   entryTypes: Array<"timeline" | "emotion" | "task" | "work" | "study" | "life" | "finance" | "other">;
   tags: string[];
-  emotions: Array<{ name: string; intensity: number; reason: string }>;
+  emotions: Array<{
+    name: string;
+    intensity: number;
+    valence: number;
+    arousal: number;
+    trigger: string;
+    thought: string;
+    bodyFeeling: string;
+    cognitivePattern: string;
+    reframe: string;
+    suggestion: string;
+    reason: string;
+  }>;
   tasks: Array<{ title: string; priority: "low" | "medium" | "high"; deadlineText: string; sourceText: string }>;
   workItems: Array<{ project: string; type: "development" | "study" | "competition" | "course" | "other"; title: string; description: string }>;
   financeItems: Array<{ title: string; amountText: string; type: "expense" | "income"; category: string; sourceText: string }>;
@@ -37,10 +49,10 @@ function buildHeuristicResult(content: string): Partial<EntryAnalyzeResult> {
 
   const emotions: EntryAnalyzeResult["emotions"] = [];
   if (/[焦烦疲累崩溃难受]/.test(text)) {
-    emotions.push({ name: "烦躁", intensity: 0.7, reason: "文本中出现了明显的负向情绪词" });
+    emotions.push({ name: "烦躁", intensity: 0.7, valence: -0.6, arousal: 0.7, trigger: "文本中出现了明显的负向情绪词", thought: "", bodyFeeling: "", cognitivePattern: "", reframe: "", suggestion: "", reason: "文本中出现了明显的负向情绪词" });
   }
   if (/[开心成就完成解决顺利]/.test(text)) {
-    emotions.push({ name: "成就感", intensity: 0.7, reason: "文本中出现了明显的正向结果词" });
+    emotions.push({ name: "成就感", intensity: 0.7, valence: 0.8, arousal: 0.5, trigger: "文本中出现了明显的正向结果词", thought: "", bodyFeeling: "", cognitivePattern: "", reframe: "", suggestion: "", reason: "文本中出现了明显的正向结果词" });
   }
   if (emotions.length) {
     result.emotions = emotions;

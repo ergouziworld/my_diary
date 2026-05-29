@@ -35,16 +35,25 @@ export function normalizeEntryAnalyzeResult(value: unknown): EntryAnalyzeResult 
     ? record.emotions
         .map((item) => {
           if (typeof item === "string" && item.length > 0) {
-            return { name: item, intensity: 0.5, reason: "" };
+            return { name: item, intensity: 0.5, valence: 0, arousal: 0.5, trigger: "", thought: "", bodyFeeling: "", cognitivePattern: "", reframe: "", suggestion: "", reason: "" };
           }
           const obj = asObject(item);
           if (!obj) return null;
           const name = typeof obj.name === "string" ? obj.name : "";
           if (!name.length) return null;
+          const trigger = typeof obj.trigger === "string" ? obj.trigger : (typeof obj.reason === "string" ? obj.reason : "");
           return {
             name,
             intensity: typeof obj.intensity === "number" ? obj.intensity : 0.5,
-            reason: typeof obj.reason === "string" ? obj.reason : ""
+            valence: typeof obj.valence === "number" ? Math.max(-1, Math.min(1, obj.valence)) : 0,
+            arousal: typeof obj.arousal === "number" ? Math.max(0, Math.min(1, obj.arousal)) : 0.5,
+            trigger,
+            thought: typeof obj.thought === "string" ? obj.thought : "",
+            bodyFeeling: typeof obj.bodyFeeling === "string" ? obj.bodyFeeling : "",
+            cognitivePattern: typeof obj.cognitivePattern === "string" ? obj.cognitivePattern : "",
+            reframe: typeof obj.reframe === "string" ? obj.reframe : "",
+            suggestion: typeof obj.suggestion === "string" ? obj.suggestion : "",
+            reason: trigger
           };
         })
         .filter((item): item is NonNullable<typeof item> => item !== null)
