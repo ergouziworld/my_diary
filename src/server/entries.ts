@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/auth";
-import { memoryCreateEntry, memoryListEntries } from "@/server/memoryStore";
 import { cache } from "react";
 
 export type EntryRecord = {
@@ -58,52 +57,39 @@ export async function createEntry(input: CreateEntryInput): Promise<EntryRecord>
     inputType: "text" as const
   } as any;
 
-  try {
-    const entry = await prisma.entry.create({ data });
-    return {
-      ...entry,
-      contentText: input.rawContent,
-      type: input.type,
-      inputType: "text",
-      entryAnalysis: null,
-      entryEmotions: [],
-      tasks: [],
-      workItems: []
-    };
-  } catch {
-    return memoryCreateEntry({
-      id: crypto.randomUUID(),
-      ...data,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-  }
+  const entry = await prisma.entry.create({ data });
+  return {
+    ...entry,
+    contentText: input.rawContent,
+    type: input.type,
+    inputType: "text",
+    entryAnalysis: null,
+    entryEmotions: [],
+    tasks: [],
+    workItems: []
+  };
 }
 
 export const listEntries = cache(async function listEntries(): Promise<EntryRecord[]> {
   const userId = await getUserId();
-  try {
-    const entries = await prisma.entry.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      include: {
-        entryAnalysis: true,
-        entryEmotions: true,
-        tasks: true,
-        workItems: true
-      }
-    });
-    return entries.map((entry) => ({
-      ...entry,
-      contentText: (entry as any).contentText ?? entry.rawContent,
-      type: (entry as any).type ?? "text",
-      inputType: (entry as any).inputType ?? "text",
-      entryAnalysis: entry.entryAnalysis ?? null,
-      entryEmotions: entry.entryEmotions,
-      tasks: entry.tasks,
-      workItems: entry.workItems
-    })) as EntryRecord[];
-  } catch {
-    return memoryListEntries(userId);
-  }
+  const entries = await prisma.entry.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      entryAnalysis: true,
+      entryEmotions: true,
+      tasks: true,
+      workItems: true
+    }
+  });
+  return entries.map((entry) => ({
+    ...entry,
+    contentText: (entry as any).contentText ?? entry.rawContent,
+    type: (entry as any).type ?? "text",
+    inputType: (entry as any).inputType ?? "text",
+    entryAnalysis: entry.entryAnalysis ?? null,
+    entryEmotions: entry.entryEmotions,
+    tasks: entry.tasks,
+    workItems: entry.workItems
+  })) as EntryRecord[];
 });
