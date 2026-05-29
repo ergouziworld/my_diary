@@ -23,6 +23,37 @@ export function RichInputBox() {
   const [uploading, setUploading] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  function handleTextareaFocus() {
+    if (typeof window === "undefined") return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const align = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      // 容器底端距键盘顶端的差值；> 0 表示被键盘挡住，需要把页面往下滚
+      const delta = rect.bottom - vv.height + 8;
+      if (delta > 1) window.scrollBy({ top: delta, behavior: "smooth" });
+    };
+
+    let done = false;
+    const onResize = () => {
+      if (done) return;
+      done = true;
+      vv.removeEventListener("resize", onResize);
+      align();
+    };
+    vv.addEventListener("resize", onResize);
+    setTimeout(() => {
+      if (done) return;
+      done = true;
+      vv.removeEventListener("resize", onResize);
+      align();
+    }, 500);
+  }
 
   async function handleFileUpload(file: File) {
     setUploading(true);
@@ -114,12 +145,13 @@ export function RichInputBox() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 min-h-0">
+    <div ref={containerRef} className="flex flex-1 flex-col gap-3 min-h-0">
       <textarea
         className="flex-1 min-h-0 w-full resize-none overflow-y-auto bg-transparent p-0 text-lg text-white outline-none placeholder:text-slate-700 transition leading-relaxed"
         placeholder="今天发生了什么？"
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        onFocus={handleTextareaFocus}
         onKeyDown={(e) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void handleSubmit();
         }}
