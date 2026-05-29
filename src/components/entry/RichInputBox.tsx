@@ -34,9 +34,9 @@ export function RichInputBox() {
       const container = containerRef.current;
       if (!container) return;
       const rect = container.getBoundingClientRect();
-      // 容器底端距键盘顶端的差值；> 0 表示被键盘挡住，需要把页面往下滚
+      // 容器底端距键盘顶端的差值；> 0 表示被键盘挡住，< 0 表示在键盘上方留白
       const delta = rect.bottom - vv.height + 8;
-      if (delta > 1) window.scrollBy({ top: delta, behavior: "smooth" });
+      if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: "smooth" });
     };
 
     let done = false;
