@@ -96,9 +96,9 @@ export function RichInputBox() {
       setLoading(false);
       setContent("");
       setAttachments([]);
-      startTransition(() => router.refresh());
+      // 不立刻刷新，等 AI 分析完再刷，避免中间状态导致的页面闪动
 
-      // AI 分析静默后台跑，完成后再刷一次
+      // AI 分析完后刷一次，记录带标签一起出现
       const entryId = saved.data?.id;
       if (entryId) {
         void fetch("/api/ai/analyze", {
