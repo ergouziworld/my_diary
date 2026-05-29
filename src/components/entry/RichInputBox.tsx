@@ -89,7 +89,8 @@ export function RichInputBox() {
         return;
       }
 
-      // 立刻清空、反馈、刷新
+      // 稍作停顿再反馈，避免太突兀
+      await new Promise((r) => setTimeout(r, 500));
       setContent("");
       setAttachments([]);
       setStatus("已保存 ✓");
