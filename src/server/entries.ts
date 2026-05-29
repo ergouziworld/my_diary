@@ -40,6 +40,12 @@ export type EntryRecord = {
     status: "todo" | "doing" | "done" | "archived";
     projectName: string | null;
   }>;
+  attachments: Array<{
+    id: string;
+    fileUrl: string;
+    fileType: string;
+    mimeType: string;
+  }>;
 };
 
 export type CreateEntryInput = {
@@ -66,7 +72,8 @@ export async function createEntry(input: CreateEntryInput): Promise<EntryRecord>
     entryAnalysis: null,
     entryEmotions: [],
     tasks: [],
-    workItems: []
+    workItems: [],
+    attachments: []
   };
 }
 
@@ -79,7 +86,8 @@ export const listEntries = cache(async function listEntries(): Promise<EntryReco
       entryAnalysis: true,
       entryEmotions: true,
       tasks: true,
-      workItems: true
+      workItems: true,
+      attachments: { select: { id: true, fileUrl: true, fileType: true, mimeType: true } }
     }
   });
   return entries.map((entry) => ({
@@ -90,6 +98,7 @@ export const listEntries = cache(async function listEntries(): Promise<EntryReco
     entryAnalysis: entry.entryAnalysis ?? null,
     entryEmotions: entry.entryEmotions,
     tasks: entry.tasks,
-    workItems: entry.workItems
+    workItems: entry.workItems,
+    attachments: entry.attachments
   })) as EntryRecord[];
 });

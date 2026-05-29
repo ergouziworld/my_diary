@@ -77,38 +77,67 @@ async function EntryMetrics() {
 
 async function RecentEntries() {
   const entries = await listEntries();
-  const recentItems = entries.slice(0, 3).map((entry) => {
+  const recentItems = entries.slice(0, 5).map((entry) => {
     const raw = entry.entryAnalysis?.rawAiResult as { tags?: string[] } | null | undefined;
+    const images = entry.attachments.filter((a) => a.fileType === "image" || a.mimeType.startsWith("image/"));
     return {
       id: entry.id,
-      title: entry.entryAnalysis?.summary ?? entry.rawContent?.slice(0, 20) ?? "未生成摘要",
-      meta: `${entry.type} · ${entry.createdAt.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}`,
-      summary: entry.entryAnalysis?.compressedMemory ?? entry.rawContent ?? "暂无内容",
-      tags: raw?.tags ?? []
+      rawContent: entry.rawContent ?? "",
+      meta: entry.createdAt.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }),
+      summary: entry.entryAnalysis?.summary ?? null,
+      tags: raw?.tags ?? [],
+      images,
     };
   });
 
   return (
-    <Panel title="最近记录" subtitle="刷新后也能看到数据库里的最新结果。">
+    <Panel title="最近记录" subtitle="">
       <div className="space-y-4">
         {recentItems.length ? (
           recentItems.map((item) => (
-            <article key={item.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h4 className="font-medium text-white">{item.title}</h4>
-                  <p className="mt-1 text-xs text-slate-400">{item.meta}</p>
+            <article key={item.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+              {/* 时间 + 标签 */}
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-slate-500">{item.meta}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {item.tags.slice(0, 3).map((tag) => <Pill key={tag} tone="neutral">{tag}</Pill>)}
                 </div>
-                <Pill tone="accent">已保存</Pill>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {item.tags.length ? item.tags.map((tag) => <Pill key={tag} tone="neutral">{tag}</Pill>) : <Pill tone="neutral">无标签</Pill>}
-              </div>
-              <p className="mt-3 text-sm leading-6 text-slate-300">{item.summary}</p>
+
+              {/* 原文 */}
+              <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap line-clamp-6">
+                {item.rawContent || "（无内容）"}
+              </p>
+
+              {/* 图片附件 */}
+              {item.images.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {item.images.slice(0, 4).map((img) => (
+                    <img
+                      key={img.id}
+                      src={img.fileUrl}
+                      alt=""
+                      className="h-20 w-20 rounded-xl object-cover"
+                    />
+                  ))}
+                  {item.images.length > 4 && (
+                    <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm text-slate-400">
+                      +{item.images.length - 4}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* AI 摘要（有则展示） */}
+              {item.summary && (
+                <p className="border-t border-white/5 pt-3 text-xs text-slate-500 leading-relaxed">
+                  AI · {item.summary}
+                </p>
+              )}
             </article>
           ))
         ) : (
-          <p className="text-sm text-slate-400">还没有 entry，先写一条吧。</p>
+          <p className="text-sm text-slate-400">还没有记录，先去写一条吧。</p>
         )}
       </div>
     </Panel>
