@@ -85,26 +85,28 @@ export function RichInputBox() {
 
       if (!saved.ok) {
         setStatus(saved.error ?? "保存失败");
+        setLoading(false);
         return;
       }
 
-      const entryId = saved.data?.id;
-      if (entryId) {
-        setStatus("AI 分析中...");
-        await fetch("/api/ai/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entryId, content: rawContent, type: "text" })
-        });
-      }
-
+      // 立刻清空、反馈、刷新
       setContent("");
       setAttachments([]);
       setStatus("已保存 ✓");
+      setLoading(false);
       router.refresh();
+
+      // AI 分析静默后台跑，完成后再刷一次
+      const entryId = saved.data?.id;
+      if (entryId) {
+        void fetch("/api/ai/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entryId, content: rawContent, type: "text" })
+        }).then(() => router.refresh());
+      }
     } catch {
       setStatus("提交失败，请重试");
-    } finally {
       setLoading(false);
     }
   }
