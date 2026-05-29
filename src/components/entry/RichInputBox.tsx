@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useTransition } from "react";
 
 type AttachmentItem = {
   id: string;
@@ -13,6 +13,7 @@ type AttachmentItem = {
 
 export function RichInputBox() {
   const router = useRouter();
+  const [, startTransition] = useTransition();
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [linkInput, setLinkInput] = useState("");
@@ -93,12 +94,9 @@ export function RichInputBox() {
       await new Promise((r) => setTimeout(r, 500));
       setStatus("已保存 ✓");
       setLoading(false);
-      // 先刷新，下一帧再清空内容，避免高度收缩和刷新同帧导致闪动
-      router.refresh();
-      requestAnimationFrame(() => {
-        setContent("");
-        setAttachments([]);
-      });
+      setContent("");
+      setAttachments([]);
+      startTransition(() => router.refresh());
 
       // AI 分析静默后台跑，完成后再刷一次
       const entryId = saved.data?.id;
@@ -107,7 +105,7 @@ export function RichInputBox() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ entryId, content: rawContent, type: "text" })
-        }).then(() => router.refresh());
+        }).then(() => startTransition(() => router.refresh()));
       }
     } catch {
       setStatus("提交失败，请重试");
