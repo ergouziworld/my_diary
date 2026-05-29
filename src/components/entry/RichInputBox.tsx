@@ -91,11 +91,14 @@ export function RichInputBox() {
 
       // 稍作停顿再反馈，避免太突兀
       await new Promise((r) => setTimeout(r, 500));
-      setContent("");
-      setAttachments([]);
       setStatus("已保存 ✓");
       setLoading(false);
+      // 先刷新，下一帧再清空内容，避免高度收缩和刷新同帧导致闪动
       router.refresh();
+      requestAnimationFrame(() => {
+        setContent("");
+        setAttachments([]);
+      });
 
       // AI 分析静默后台跑，完成后再刷一次
       const entryId = saved.data?.id;
