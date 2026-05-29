@@ -19,6 +19,7 @@ type EmotionItem = {
   reason: string;
   createdAt: Date;
   entryId: string;
+  rawContent: string;
 };
 
 export default function Page() {
@@ -56,6 +57,7 @@ async function MoodContent() {
           reason: e.reason ?? "",
           createdAt: e.createdAt,
           entryId: entry.id,
+          rawContent: entry.rawContent ?? "",
         };
       });
     }
@@ -81,6 +83,7 @@ async function MoodContent() {
           reason: typeof obj.reason === "string" ? obj.reason : "",
           createdAt: entry.createdAt,
           entryId: entry.id,
+          rawContent: entry.rawContent ?? "",
         };
       })
       .filter((item): item is EmotionItem => item !== null);
@@ -142,6 +145,13 @@ function EmotionCard({ emotion }: { emotion: EmotionItem }) {
           </div>
         </div>
       </div>
+
+      {/* 原文 */}
+      {emotion.rawContent && (
+        <p className="rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm leading-relaxed text-slate-400 whitespace-pre-wrap line-clamp-4">
+          {emotion.rawContent}
+        </p>
+      )}
 
       {/* 触发 + 想法 */}
       <div className="grid gap-3 sm:grid-cols-2">
