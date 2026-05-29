@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { HomeInputSection } from "@/components/entry/HomeInputSection";
 import { SmallAiBox } from "@/components/entry/SmallAiBox";
 import { MetricCard } from "@/components/common/MetricCard";
 import { Panel } from "@/components/common/Panel";
 import { Pill } from "@/components/common/Pill";
 import { listEntries } from "@/server/entries";
+import type { EntryRecord } from "@/server/entries";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +16,7 @@ export default async function HomePage({
 }) {
   const { view } = await searchParams;
   const isTimeline = view === "timeline";
+  const entries = await listEntries();
 
   return (
     <div className="space-y-5">
@@ -39,32 +40,25 @@ export default async function HomePage({
       </div>
 
       {isTimeline ? (
-        <Suspense fallback={<Panel title="时间线" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
-          <TimelineView />
-        </Suspense>
+        <TimelineView entries={entries} />
       ) : (
         <div className="space-y-5">
           <HomeInputSection />
 
           <section className="grid grid-cols-2 gap-3">
-            <Suspense fallback={<><MetricCard label="今日记录" value="..." hint="" /><MetricCard label="待办任务" value="..." hint="" /><MetricCard label="情绪记录" value="..." hint="" /><MetricCard label="AI 总结" value="..." hint="" /></>}>
-              <EntryMetrics />
-            </Suspense>
+            <EntryMetrics entries={entries} />
           </section>
 
           <SmallAiBox />
 
-          <Suspense fallback={<Panel title="最近记录" subtitle="正在加载"><p className="text-sm text-slate-400">加载中...</p></Panel>}>
-            <RecentEntries />
-          </Suspense>
+          <RecentEntries entries={entries} />
         </div>
       )}
     </div>
   );
 }
 
-async function EntryMetrics() {
-  const entries = await listEntries();
+function EntryMetrics({ entries }: { entries: EntryRecord[] }) {
   return (
     <>
       <MetricCard label="今日记录" value={String(entries.length)} hint="原文已保存" />
@@ -75,8 +69,7 @@ async function EntryMetrics() {
   );
 }
 
-async function RecentEntries() {
-  const entries = await listEntries();
+function RecentEntries({ entries }: { entries: EntryRecord[] }) {
   const recentItems = entries.slice(0, 5).map((entry) => {
     const raw = entry.entryAnalysis?.rawAiResult as { tags?: string[] } | null | undefined;
     const images = entry.attachments.filter((a) => a.fileType === "image" || a.mimeType.startsWith("image/"));
@@ -96,7 +89,6 @@ async function RecentEntries() {
         {recentItems.length ? (
           recentItems.map((item) => (
             <article key={item.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-              {/* 时间 + 标签 */}
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-slate-500">{item.meta}</p>
                 <div className="flex flex-wrap gap-1.5">
@@ -104,21 +96,14 @@ async function RecentEntries() {
                 </div>
               </div>
 
-              {/* 原文 */}
               <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap line-clamp-6">
                 {item.rawContent || "（无内容）"}
               </p>
 
-              {/* 图片附件 */}
               {item.images.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {item.images.slice(0, 4).map((img) => (
-                    <img
-                      key={img.id}
-                      src={img.fileUrl}
-                      alt=""
-                      className="h-20 w-20 rounded-xl object-cover"
-                    />
+                    <img key={img.id} src={img.fileUrl} alt="" className="h-20 w-20 rounded-xl object-cover" />
                   ))}
                   {item.images.length > 4 && (
                     <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm text-slate-400">
@@ -128,7 +113,6 @@ async function RecentEntries() {
                 </div>
               )}
 
-              {/* AI 摘要（有则展示） */}
               {item.summary && (
                 <p className="border-t border-white/5 pt-3 text-xs text-slate-500 leading-relaxed">
                   AI · {item.summary}
@@ -144,9 +128,7 @@ async function RecentEntries() {
   );
 }
 
-async function TimelineView() {
-  const entries = await listEntries();
-
+function TimelineView({ entries }: { entries: EntryRecord[] }) {
   return (
     <Panel title="时间线" subtitle="把原文和摘要串起来。">
       <div className="space-y-4">
