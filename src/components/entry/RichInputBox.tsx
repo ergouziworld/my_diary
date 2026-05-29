@@ -180,8 +180,8 @@ export function RichInputBox() {
       )}
 
       {/* 工具栏 */}
-      <div className="mt-auto shrink-0 flex items-center justify-between">
-        <div className="flex items-center gap-1">
+      <div className="mt-auto flex min-h-11 shrink-0 items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-1">
           <input
             ref={imageInputRef}
             type="file"
@@ -200,6 +200,7 @@ export function RichInputBox() {
             type="button"
             title="上传图片"
             disabled={uploading}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => imageInputRef.current?.click()}
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10 disabled:opacity-40"
           >
@@ -209,6 +210,7 @@ export function RichInputBox() {
             type="button"
             title="上传文档"
             disabled={uploading}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => docInputRef.current?.click()}
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10 disabled:opacity-40"
           >
@@ -217,19 +219,26 @@ export function RichInputBox() {
           <button
             type="button"
             title="添加链接"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowLinkInput((v) => !v)}
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
           >
             🔗
           </button>
-          {(uploading || status) && (
-            <span className="ml-2 text-xs text-slate-400">{status}</span>
-          )}
+          <span
+            aria-live="polite"
+            className={`ml-2 w-[5.75rem] shrink-0 truncate text-xs leading-none text-slate-400 transition-opacity ${
+              uploading || status ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {status || "\u00a0"}
+          </span>
         </div>
 
         <button
           type="button"
           disabled={loading || uploading}
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => void handleSubmit()}
           className="rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
