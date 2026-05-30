@@ -4,8 +4,15 @@
 
 html, body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
   background: #020617;
+}
+
+@layer utilities {
+  .overflow-anchor-none {
+    overflow-anchor: none;
+  }
 }

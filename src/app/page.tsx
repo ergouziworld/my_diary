@@ -96,7 +96,7 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
                 </div>
               </div>
 
-              <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap line-clamp-6">
+              <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap break-words line-clamp-6">
                 {item.rawContent || "（无内容）"}
               </p>
 
@@ -114,7 +114,7 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
               )}
 
               {item.summary && (
-                <p className="border-t border-white/5 pt-3 text-xs text-slate-500 leading-relaxed">
+                <p className="border-t border-white/5 pt-3 text-xs text-slate-500 leading-relaxed break-words">
                   AI · {item.summary}
                 </p>
               )}
