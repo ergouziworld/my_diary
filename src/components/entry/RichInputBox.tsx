@@ -260,7 +260,7 @@ export function RichInputBox() {
           </button>
           <span
             aria-live="polite"
-            className={`ml-2 w-[5.75rem] shrink-0 truncate text-xs leading-none text-slate-400 transition-opacity ${
+            className={`ml-2 min-w-0 flex-1 truncate text-xs leading-none text-slate-400 transition-opacity ${
               uploading || status ? "opacity-100" : "opacity-0"
             }`}
           >
