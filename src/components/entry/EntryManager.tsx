@@ -39,6 +39,27 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
   const [aiResults, setAiResults] = useState<string[] | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState("");
+  const [indexing, setIndexing] = useState(false);
+  const [indexStatus, setIndexStatus] = useState("");
+
+  async function handleReindex() {
+    if (indexing) return;
+    setIndexing(true);
+    setIndexStatus("正在重建索引，让 AI 重新读取全部日记...");
+    try {
+      const res = await fetch("/api/ai/reindex", { method: "POST" });
+      const data = (await res.json()) as { ok: boolean; total?: number; indexed?: number; error?: string };
+      if (data.ok) {
+        setIndexStatus(`已建立索引：${data.indexed ?? 0} / ${data.total ?? 0} 条。现在可以 AI 查找了。`);
+      } else {
+        setIndexStatus(data.error ?? "重建索引失败。");
+      }
+    } catch {
+      setIndexStatus("请求失败，请稍后重试。");
+    } finally {
+      setIndexing(false);
+    }
+  }
 
   async function runAiSearch() {
     const q = aiQuery.trim();
@@ -169,6 +190,19 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
             </div>
             {aiError && <p className="text-xs text-rose-400">{aiError}</p>}
             <p className="text-xs text-slate-600">按语义相关度排序，能匹配换了说法的内容。</p>
+            <div className="flex flex-wrap items-center gap-2 border-t border-white/5 pt-2">
+              <button
+                type="button"
+                onClick={handleReindex}
+                disabled={indexing}
+                className="shrink-0 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20 disabled:opacity-60"
+              >
+                {indexing ? "重建中..." : "重建记忆索引"}
+              </button>
+              <span className="text-xs text-slate-500">
+                {indexStatus || "首次使用或日记有大量更新后，点一次重新读取全部日记。"}
+              </span>
+            </div>
           </div>
         )}
       </div>
