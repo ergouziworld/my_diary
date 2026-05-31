@@ -191,9 +191,11 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
           <div className="rounded-2xl bg-slate-950/26 px-4 py-3 text-white shadow-[0_18px_70px_rgba(15,23,42,0.18)] backdrop-blur-md">
             <p className="text-xs font-medium uppercase tracking-[0.26em] text-cyan-50/85">Quiet Memory Space</p>
             <h1 className="mt-2 text-2xl font-semibold drop-shadow-[0_2px_10px_rgba(15,23,42,0.45)]">安静空间</h1>
-            <p className="mt-1 max-w-md text-sm text-white/82">
-              拖动屏幕转视角。手机用左下摇杆移动、右下按钮跳跃/飞行/停留；电脑用 WASD 移动、Space 跳、F 飞、E 停留。
-            </p>
+            {!isTouch ? (
+              <p className="mt-1 max-w-md text-sm text-white/82">
+                拖动屏幕转视角。WASD 移动，Space 跳，F 起飞/落地，E 停留。
+              </p>
+            ) : null}
           </div>
         </div>
         <div className="hidden gap-2 text-xs text-white/80 sm:flex">
@@ -209,24 +211,26 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute left-5 bottom-5 z-10 w-72 rounded-2xl border border-white/15 bg-slate-950/60 p-4 shadow-[0_24px_90px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-        <div className="flex items-center justify-between text-xs text-cyan-100">
-          <span>体力</span>
-          <span>{Math.round(stamina)}%</span>
+      {!isTouch ? (
+        <div className="pointer-events-none absolute left-5 bottom-5 z-10 w-72 rounded-2xl border border-white/15 bg-slate-950/60 p-4 shadow-[0_24px_90px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <div className="flex items-center justify-between text-xs text-cyan-100">
+            <span>体力</span>
+            <span>{Math.round(stamina)}%</span>
+          </div>
+          <div className="mt-2 h-2 rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-cyan-300 transition-[width]" style={{ width: `${stamina}%` }} />
+          </div>
+          <div className="mt-3 flex items-center justify-between text-xs text-white/70">
+            <span>状态</span>
+            <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-cyan-50">
+              {modeLabel(movementMode)}
+            </span>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-white/65">
+            山坡会抬高角色，进入河流会自动变成游泳，飞行可以越过地形看整个空间。
+          </p>
         </div>
-        <div className="mt-2 h-2 rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-cyan-300 transition-[width]" style={{ width: `${stamina}%` }} />
-        </div>
-        <div className="mt-3 flex items-center justify-between text-xs text-white/70">
-          <span>状态</span>
-          <span className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-cyan-50">
-            {modeLabel(movementMode)}
-          </span>
-        </div>
-        <p className="mt-3 text-xs leading-5 text-white/65">
-          山坡会抬高角色，进入河流会自动变成游泳，飞行可以越过地形看整个空间。
-        </p>
-      </div>
+      ) : null}
 
       <div className="pointer-events-none absolute right-5 top-24 z-10 h-36 w-36 rounded-2xl border border-white/15 bg-slate-950/55 p-3 shadow-[0_24px_90px_rgba(0,0,0,0.32)] backdrop-blur-xl">
         <div className="relative h-full w-full rounded-xl border border-white/10 bg-cyan-950/25">
