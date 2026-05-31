@@ -83,7 +83,7 @@ function EntryCard({ item }: { item: ManageItem }) {
 
   return (
     <article className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <p className="text-xs text-slate-500">{item.meta}</p>
         <div className="flex items-center gap-2">
           {!editing && (

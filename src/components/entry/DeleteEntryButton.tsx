@@ -24,7 +24,7 @@ export function DeleteEntryButton({ entryId }: { entryId: string }) {
         setDeleting(false);
       }
     } catch {
-      setError("删除失败，请重试");
+      setError("删除失败");
       setDeleting(false);
     }
   }
@@ -35,7 +35,7 @@ export function DeleteEntryButton({ entryId }: { entryId: string }) {
         type="button"
         onClick={() => setConfirming(true)}
         className="shrink-0 rounded-lg px-2 py-1 text-xs text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-400"
-        title="删除这条记录"
+        title="删除这条记录（连同 AI 记忆一并清除）"
       >
         删除
       </button>
@@ -43,19 +43,16 @@ export function DeleteEntryButton({ entryId }: { entryId: string }) {
   }
 
   return (
-    <div className="flex shrink-0 items-center gap-1.5">
-      {error ? (
-        <span className="text-xs text-rose-400">{error}</span>
-      ) : (
-        <span className="text-xs text-slate-400">确认删除？连同 AI 记忆一并清除</span>
-      )}
+    <div className="flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+      {error && <span className="text-xs text-rose-400">{error}</span>}
       <button
         type="button"
         onClick={handleDelete}
         disabled={deleting}
-        className="rounded-lg bg-rose-500/20 px-2 py-1 text-xs font-medium text-rose-300 transition hover:bg-rose-500/30 disabled:opacity-60"
+        title="连同 AI 记忆一并清除"
+        className="rounded-lg bg-rose-500/20 px-2.5 py-1 text-xs font-medium text-rose-300 transition hover:bg-rose-500/30 disabled:opacity-60"
       >
-        {deleting ? "删除中..." : "确认"}
+        {deleting ? "删除中..." : error ? "重试" : "确认删除"}
       </button>
       <button
         type="button"
