@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { PetCompanion } from "@/components/pet/PetCompanion";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -16,9 +17,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <div className="flex-1">
         <AppHeader />
-        <main className="p-6 pb-24 md:pb-6">{children}</main>
+        <main className="overflow-x-hidden p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-6">{children}</main>
       </div>
       <BottomNav />
+      <PetCompanion />
     </div>
   );
 }
