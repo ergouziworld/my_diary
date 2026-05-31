@@ -16,3 +16,16 @@ body {
     overflow-anchor: none;
   }
 }
+
+@keyframes petBob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+
+.animate-petBob {
+  animation: petBob 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-petBob { animation: none; }
+}
