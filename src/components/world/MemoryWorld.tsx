@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type RefObject, type PointerEvent as ReactPointerEvent } from "react";
+import Link from "next/link";
 import * as THREEImport from "three";
 import type { MemoryWorldData, MemoryWorldNode } from "@/server/world";
 
@@ -122,7 +123,6 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
   const [playerMap, setPlayerMap] = useState<PlayerMapPoint>({ x: 50, y: 50 });
   const [loadingText, setLoadingText] = useState("正在准备安静空间...");
   const [isTouch, setIsTouch] = useState(false);
-  const [isPortrait, setIsPortrait] = useState(false);
 
   const selected = useMemo(
     () => data.nodes.find((node) => node.id === selectedId) ?? data.nodes[0],
@@ -134,14 +134,6 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
       typeof window !== "undefined" &&
         ("ontouchstart" in window || navigator.maxTouchPoints > 0)
     );
-    const checkOrientation = () => setIsPortrait(window.innerHeight > window.innerWidth);
-    checkOrientation();
-    window.addEventListener("resize", checkOrientation);
-    window.addEventListener("orientationchange", checkOrientation);
-    return () => {
-      window.removeEventListener("resize", checkOrientation);
-      window.removeEventListener("orientationchange", checkOrientation);
-    };
   }, []);
 
   useEffect(() => {
@@ -185,16 +177,24 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
   }, [data.nodes]);
 
   return (
-    <section className="relative min-h-[calc(100vh-8rem)] overflow-hidden rounded-3xl border border-white/10 bg-slate-950 text-white">
+    <section className="fixed inset-0 z-[100] overflow-hidden bg-slate-950 text-white">
       <div ref={mountRef} className="absolute inset-0" />
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-4 p-5">
-        <div className="rounded-2xl bg-slate-950/26 px-4 py-3 text-white shadow-[0_18px_70px_rgba(15,23,42,0.18)] backdrop-blur-md">
-          <p className="text-xs font-medium uppercase tracking-[0.26em] text-cyan-50/85">Quiet Memory Space</p>
-          <h1 className="mt-2 text-2xl font-semibold drop-shadow-[0_2px_10px_rgba(15,23,42,0.45)]">安静空间</h1>
-          <p className="mt-1 max-w-md text-sm text-white/82">
-            拖动屏幕转视角。手机用左下摇杆移动、右下按钮跳跃/飞行/停留；电脑用 WASD 移动、Space 跳、F 飞、E 停留。
-          </p>
+        <div className="flex flex-col gap-2">
+          <Link
+            href="/"
+            className="pointer-events-auto inline-flex w-fit items-center gap-1 rounded-full border border-white/20 bg-slate-950/55 px-3 py-1.5 text-sm text-white backdrop-blur-md transition hover:bg-white/10"
+          >
+            <span className="text-base leading-none">←</span> 返回
+          </Link>
+          <div className="rounded-2xl bg-slate-950/26 px-4 py-3 text-white shadow-[0_18px_70px_rgba(15,23,42,0.18)] backdrop-blur-md">
+            <p className="text-xs font-medium uppercase tracking-[0.26em] text-cyan-50/85">Quiet Memory Space</p>
+            <h1 className="mt-2 text-2xl font-semibold drop-shadow-[0_2px_10px_rgba(15,23,42,0.45)]">安静空间</h1>
+            <p className="mt-1 max-w-md text-sm text-white/82">
+              拖动屏幕转视角。手机用左下摇杆移动、右下按钮跳跃/飞行/停留；电脑用 WASD 移动、Space 跳、F 飞、E 停留。
+            </p>
+          </div>
         </div>
         <div className="hidden gap-2 text-xs text-white/80 sm:flex">
           <span className="rounded-full border border-white/15 bg-slate-950/45 px-3 py-1.5 backdrop-blur">
@@ -338,12 +338,6 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
       ) : null}
 
       {isTouch ? <TouchControls controls={controlsRef} flying={movementMode === "flying"} /> : null}
-
-      {isTouch && isPortrait ? (
-        <div className="pointer-events-none absolute left-1/2 top-3 z-30 -translate-x-1/2 rounded-full border border-cyan-200/30 bg-slate-950/80 px-4 py-1.5 text-xs text-cyan-50 backdrop-blur">
-          横屏体验更佳，建议旋转手机 📱
-        </div>
-      ) : null}
     </section>
   );
 }
