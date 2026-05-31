@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Pill } from "@/components/common/Pill";
 import { DeleteEntryButton } from "@/components/entry/DeleteEntryButton";
 
 export type ManageItem = {
   id: string;
+  createdAtISO: string;
   meta: string;
   rawContent: string;
   summary: string | null;
@@ -16,7 +17,79 @@ export type ManageItem = {
   images: { id: string; url: string }[];
 };
 
+type SearchMode = "all" | "date" | "keyword" | "ai";
+
+function toDateKey(iso: string) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+const MODES: { key: SearchMode; label: string }[] = [
+  { key: "all", label: "全部" },
+  { key: "date", label: "日历" },
+  { key: "keyword", label: "关键词" },
+  { key: "ai", label: "AI 查找" }
+];
+
 export function EntryManager({ items }: { items: ManageItem[] }) {
+  const [mode, setMode] = useState<SearchMode>("all");
+  const [dateValue, setDateValue] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [aiQuery, setAiQuery] = useState("");
+  const [aiResults, setAiResults] = useState<string[] | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  async function runAiSearch() {
+    const q = aiQuery.trim();
+    if (!q || aiLoading) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const res = await fetch("/api/entries/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q })
+      });
+      const data = (await res.json()) as { ok: boolean; entryIds?: string[]; error?: string };
+      if (data.ok) {
+        setAiResults(data.entryIds ?? []);
+      } else {
+        setAiError(data.error ?? "搜索失败");
+        setAiResults(null);
+      }
+    } catch {
+      setAiError("搜索失败，请重试");
+      setAiResults(null);
+    } finally {
+      setAiLoading(false);
+    }
+  }
+
+  const filtered = useMemo(() => {
+    if (mode === "date") {
+      if (!dateValue) return items;
+      return items.filter((it) => toDateKey(it.createdAtISO) === dateValue);
+    }
+    if (mode === "keyword") {
+      const k = keyword.trim().toLowerCase();
+      if (!k) return items;
+      return items.filter(
+        (it) =>
+          it.rawContent.toLowerCase().includes(k) ||
+          (it.summary ?? "").toLowerCase().includes(k) ||
+          it.tags.some((t) => t.toLowerCase().includes(k)) ||
+          it.emotions.some((e) => e.toLowerCase().includes(k))
+      );
+    }
+    if (mode === "ai") {
+      if (!aiResults) return [];
+      const map = new Map(items.map((it) => [it.id, it]));
+      return aiResults.map((id) => map.get(id)).filter((it): it is ManageItem => Boolean(it));
+    }
+    return items;
+  }, [mode, dateValue, keyword, aiResults, items]);
+
   if (!items.length) {
     return (
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
@@ -24,11 +97,93 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
       </div>
     );
   }
+
   return (
     <div className="space-y-4">
-      {items.map((item) => (
-        <EntryCard key={item.id} item={item} />
-      ))}
+      {/* 查找栏 */}
+      <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+        <div className="flex gap-1 rounded-xl bg-slate-950/50 p-1">
+          {MODES.map((m) => (
+            <button
+              key={m.key}
+              type="button"
+              onClick={() => setMode(m.key)}
+              className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
+                mode === m.key ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        {mode === "date" && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={dateValue}
+              onChange={(e) => setDateValue(e.target.value)}
+              className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/50 [color-scheme:dark]"
+            />
+            {dateValue && (
+              <button
+                type="button"
+                onClick={() => setDateValue("")}
+                className="rounded-xl px-3 py-2 text-xs text-slate-400 hover:text-white"
+              >
+                清除
+              </button>
+            )}
+          </div>
+        )}
+
+        {mode === "keyword" && (
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="输入关键词，匹配正文、摘要、标签、情绪"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+          />
+        )}
+
+        {mode === "ai" && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={aiQuery}
+                onChange={(e) => setAiQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && runAiSearch()}
+                placeholder="用自然语言描述你想找的，如「那次很焦虑的事」"
+                className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+              />
+              <button
+                type="button"
+                onClick={runAiSearch}
+                disabled={aiLoading}
+                className="shrink-0 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+              >
+                {aiLoading ? "查找中..." : "查找"}
+              </button>
+            </div>
+            {aiError && <p className="text-xs text-rose-400">{aiError}</p>}
+            <p className="text-xs text-slate-600">按语义相关度排序，能匹配换了说法的内容。</p>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-slate-500">
+        {mode === "ai" && !aiResults ? "输入描述后点查找" : `${filtered.length} 条结果`}
+      </p>
+
+      {filtered.length ? (
+        filtered.map((item) => <EntryCard key={item.id} item={item} />)
+      ) : (
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-sm text-slate-400">
+          {mode === "ai" && !aiResults ? "试试用一句话描述你想找的日记。" : "没有匹配的记录。"}
+        </div>
+      )}
     </div>
   );
 }
