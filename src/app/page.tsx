@@ -56,7 +56,7 @@ export default async function HomePage({
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-300/80">3D · Memory World</p>
             <h3 className="mt-2 text-xl font-semibold text-white">进入记忆世界 →</h3>
-            <p className="mt-1 text-sm text-slate-400">把日记走成一片可以漫步的风景。手机横屏 + 摇杆操作。</p>
+            <p className="mt-1 text-sm text-slate-400">把日记走成一片可以漫步的风景。全屏沉浸，手机摇杆操作。</p>
           </Link>
 
           <SmallAiBox />
