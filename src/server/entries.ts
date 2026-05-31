@@ -123,6 +123,24 @@ export const listEntries = cache(async function listEntries(): Promise<EntryReco
 });
 
 /**
+ * 修改日记正文。只更新文本，AI 分析与向量记忆由调用方随后触发重新分析来同步。
+ */
+export async function updateEntry(entryId: string, rawContent: string): Promise<void> {
+  const userId = await getUserId();
+  const entry = await prisma.entry.findFirst({
+    where: { id: entryId, userId },
+    select: { id: true }
+  });
+  if (!entry) {
+    throw new Error("记录不存在或无权修改");
+  }
+  await prisma.entry.update({
+    where: { id: entryId },
+    data: { rawContent, contentText: rawContent }
+  });
+}
+
+/**
  * 彻底删除一条日记及所有与之相关的数据：AI 记忆向量、分析、情绪、任务、
  * 工作项、财务、心情、时间线、标签、人物、相册、附件（含磁盘文件）。
  * schema 里不少关联是 SetNull，所以这里逐表显式按 entryId 删除，保证不留孤儿。
