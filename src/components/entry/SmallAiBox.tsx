@@ -54,10 +54,10 @@ export function SmallAiBox() {
   }
 
   return (
-    <div className="space-y-4 rounded-[2rem] border border-cyan-400/20 bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.14),_transparent_42%),linear-gradient(180deg,_rgba(2,6,23,0.95),_rgba(15,23,42,0.88))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+    <div className="space-y-4 rounded-[2rem] border border-red-500/20 bg-[radial-gradient(circle_at_top,_rgba(239,68,68,0.14),_transparent_42%),linear-gradient(180deg,_rgba(2,6,23,0.95),_rgba(15,23,42,0.88))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-[11px] font-medium text-cyan-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-3 py-1 text-[11px] font-medium text-red-300">
             小 AI
           </div>
           <h3 className="mt-3 text-xl font-semibold text-white">独立问答区</h3>
@@ -65,7 +65,7 @@ export function SmallAiBox() {
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-right">
           <div className="text-[11px] uppercase tracking-[0.2em] text-slate-500">limit</div>
-          <div className="text-sm font-semibold text-cyan-200">100 / 30</div>
+          <div className="text-sm font-semibold text-red-300">100 / 30</div>
         </div>
       </div>
 
@@ -78,7 +78,7 @@ export function SmallAiBox() {
               setQuestion(item);
               void handleAsk(item);
             }}
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-cyan-400/40 hover:bg-cyan-400/10"
+            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-red-500/40 hover:bg-red-500/10"
           >
             {item}
           </button>
@@ -93,7 +93,7 @@ export function SmallAiBox() {
         <textarea
           maxLength={100}
           rows={4}
-          className="w-full resize-none rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-cyan-400/50"
+          className="w-full resize-none rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-red-500/50"
           placeholder="输入问题，100 字以内"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
@@ -106,7 +106,7 @@ export function SmallAiBox() {
           type="button"
           disabled={loading}
           onClick={() => void handleAsk()}
-          className="rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-medium text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full bg-red-500 px-5 py-2.5 text-sm font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "回答中..." : "提问"}
         </button>
@@ -114,7 +114,7 @@ export function SmallAiBox() {
 
       <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/70 p-4">
         <div className="mb-2 text-xs uppercase tracking-[0.18em] text-slate-500">answer</div>
-        <div className="inline-block max-w-full rounded-2xl rounded-tl-sm bg-cyan-400/15 px-4 py-3 text-sm leading-6 text-slate-100">
+        <div className="inline-block max-w-full rounded-2xl rounded-tl-sm bg-red-500/15 px-4 py-3 text-sm leading-6 text-slate-100">
           {answer}
         </div>
       </div>

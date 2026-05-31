@@ -8,7 +8,8 @@ html, body {
 }
 
 body {
-  background: #020617;
+  background: radial-gradient(ellipse at top, rgba(239, 68, 68, 0.1), transparent 55%), #020617;
+  background-attachment: fixed;
 }
 
 @layer utilities {

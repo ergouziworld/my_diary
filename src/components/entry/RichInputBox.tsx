@@ -193,7 +193,7 @@ export function RichInputBox() {
       {showLinkInput && (
         <div className="flex gap-2">
           <input
-            className="flex-1 rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/40"
+            className="flex-1 rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none focus:border-red-500/40"
             placeholder="粘贴链接..."
             value={linkInput}
             onChange={(e) => setLinkInput(e.target.value)}
@@ -203,7 +203,7 @@ export function RichInputBox() {
           <button
             type="button"
             onClick={addLink}
-            className="rounded-xl bg-cyan-400/20 px-3 py-2 text-xs text-cyan-300 hover:bg-cyan-400/30 transition"
+            className="rounded-xl bg-red-500/20 px-3 py-2 text-xs text-red-400 hover:bg-red-500/30 transition"
           >
             确认
           </button>
@@ -240,7 +240,7 @@ export function RichInputBox() {
             disabled={uploading}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => imageInputRef.current?.click()}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10 disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-red-500/30 hover:bg-red-500/10 disabled:opacity-40"
           >
             📷
           </button>
@@ -250,7 +250,7 @@ export function RichInputBox() {
             disabled={uploading}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => docInputRef.current?.click()}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10 disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-red-500/30 hover:bg-red-500/10 disabled:opacity-40"
           >
             📎
           </button>
@@ -259,7 +259,7 @@ export function RichInputBox() {
             title="添加链接"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowLinkInput((v) => !v)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-cyan-400/30 hover:bg-cyan-400/10"
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-red-500/30 hover:bg-red-500/10"
           >
             🔗
           </button>
@@ -278,7 +278,7 @@ export function RichInputBox() {
           disabled={loading || uploading}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => void handleSubmit()}
-          className="rounded-full bg-cyan-400 px-5 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full bg-red-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "处理中..." : "记录"}
         </button>
