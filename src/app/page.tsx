@@ -2,7 +2,6 @@ import Link from "next/link";
 import { HomeInputSection } from "@/components/entry/HomeInputSection";
 import { DeleteEntryButton } from "@/components/entry/DeleteEntryButton";
 import { SmallAiBox } from "@/components/entry/SmallAiBox";
-import { MetricCard } from "@/components/common/MetricCard";
 import { Panel } from "@/components/common/Panel";
 import { Pill } from "@/components/common/Pill";
 import { listEntries } from "@/server/entries";
@@ -46,9 +45,7 @@ export default async function HomePage({
         <div className="space-y-5">
           <HomeInputSection />
 
-          <section className="grid grid-cols-2 gap-3">
-            <EntryMetrics entries={entries} />
-          </section>
+          <TodayStatus entries={entries} />
 
           <Link
             href="/world"
@@ -68,14 +65,44 @@ export default async function HomePage({
   );
 }
 
-function EntryMetrics({ entries }: { entries: EntryRecord[] }) {
+function dayKey(d: Date) {
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function TodayStatus({ entries }: { entries: EntryRecord[] }) {
+  const total = entries.length;
+  const pending = entries
+    .flatMap((item) => item.tasks)
+    .filter((t) => t.status === "todo" || t.status === "doing").length;
+
+  // 连续记录天数：从今天（或昨天）往回数有记录的连续天数
+  const keys = new Set(entries.map((e) => dayKey(e.createdAt)));
+  let streak = 0;
+  const cursor = new Date();
+  if (!keys.has(dayKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+  while (keys.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
   return (
-    <>
-      <MetricCard label="今日记录" value={String(entries.length)} hint="原文已保存" />
-      <MetricCard label="待办任务" value={String(entries.flatMap((item) => item.tasks).length)} hint="AI 提取" />
-      <MetricCard label="情绪记录" value={String(entries.flatMap((item) => item.entryEmotions).length)} hint="结构化分析" />
-      <MetricCard label="AI 总结" value={String(entries.filter((item) => item.entryAnalysis).length)} hint="已分析条目" />
-    </>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm text-slate-300">
+      <span>📖 已记录 <b className="font-semibold text-white">{total}</b> 篇</span>
+      <span className="text-slate-600">·</span>
+      {streak > 0 ? (
+        <span>🔥 连续 <b className="font-semibold text-accent-400">{streak}</b> 天</span>
+      ) : (
+        <span>✍️ 今天还没记，写一条吧</span>
+      )}
+      <span className="text-slate-600">·</span>
+      <span>
+        {pending > 0 ? (
+          <>✅ 还有 <b className="font-semibold text-white">{pending}</b> 件待办</>
+        ) : (
+          "🎉 待办都清空了"
+        )}
+      </span>
+    </div>
   );
 }
 
