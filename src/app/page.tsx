@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HomeInputSection } from "@/components/entry/HomeInputSection";
+import { DeleteEntryButton } from "@/components/entry/DeleteEntryButton";
 import { SmallAiBox } from "@/components/entry/SmallAiBox";
 import { MetricCard } from "@/components/common/MetricCard";
 import { Panel } from "@/components/common/Panel";
@@ -91,8 +92,11 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
             <article key={item.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-slate-500">{item.meta}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {item.tags.slice(0, 3).map((tag) => <Pill key={tag} tone="neutral">{tag}</Pill>)}
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    {item.tags.slice(0, 3).map((tag) => <Pill key={tag} tone="neutral">{tag}</Pill>)}
+                  </div>
+                  <DeleteEntryButton entryId={item.id} />
                 </div>
               </div>
 
