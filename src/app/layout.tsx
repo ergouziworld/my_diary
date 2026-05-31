@@ -11,6 +11,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{document.documentElement.dataset.theme=localStorage.getItem('theme')||'hot'}catch(e){document.documentElement.dataset.theme='hot'}`
+          }}
+        />
+      </head>
       <body className="bg-slate-950 text-white">
         <SessionProvider>
           <AppShell>{children}</AppShell>

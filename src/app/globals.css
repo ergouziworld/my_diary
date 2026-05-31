@@ -2,13 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 主题强调色（皮肤切换：改这组变量，全站 accent-* 跟着变） */
+:root, [data-theme="hot"] {
+  --accent-200: 254 202 202;
+  --accent-300: 252 165 165;
+  --accent-400: 248 113 113;
+  --accent-500: 239 68 68;
+  --accent-600: 220 38 38;
+}
+[data-theme="calm"] {
+  --accent-200: 165 243 252;
+  --accent-300: 103 232 249;
+  --accent-400: 34 211 238;
+  --accent-500: 6 182 212;
+  --accent-600: 8 145 178;
+}
+
 html, body {
   height: 100%;
   overflow-x: hidden;
 }
 
 body {
-  background: radial-gradient(ellipse at top, rgba(239, 68, 68, 0.1), transparent 55%), #020617;
+  background: radial-gradient(ellipse at top, rgb(var(--accent-500) / 0.1), transparent 55%), #020617;
   background-attachment: fixed;
 }
 
