@@ -53,29 +53,46 @@ export type EntryRecord = {
 export type CreateEntryInput = {
   rawContent: string;
   type: "text";
+  attachmentIds?: string[];
 };
 
 export async function createEntry(input: CreateEntryInput): Promise<EntryRecord> {
   const userId = await getUserId();
+  const hasAttachments = Boolean(input.attachmentIds?.length);
   const data = {
     userId,
     rawContent: input.rawContent,
     contentText: input.rawContent,
     type: input.type,
-    inputType: "text" as const
+    inputType: hasAttachments ? "mixed" : "text"
   } as any;
 
   const entry = await prisma.entry.create({ data });
+
+  // 把这次上传的附件绑定到本条日记。限定 userId + 未绑定(entryId 为空)，
+  // 防止抢绑别人的或已属于其它日记的附件。
+  let attachments: EntryRecord["attachments"] = [];
+  if (input.attachmentIds?.length) {
+    await prisma.attachment.updateMany({
+      where: { id: { in: input.attachmentIds }, userId, entryId: null },
+      data: { entryId: entry.id }
+    });
+    attachments = await prisma.attachment.findMany({
+      where: { entryId: entry.id },
+      select: { id: true, fileUrl: true, fileType: true, mimeType: true }
+    });
+  }
+
   return {
     ...entry,
     contentText: input.rawContent,
     type: input.type,
-    inputType: "text",
+    inputType: hasAttachments ? "mixed" : "text",
     entryAnalysis: null,
     entryEmotions: [],
     tasks: [],
     workItems: [],
-    attachments: []
+    attachments
   };
 }
 

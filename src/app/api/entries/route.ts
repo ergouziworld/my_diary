@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const value = body as { rawContent?: unknown; type?: unknown };
+  const value = body as { rawContent?: unknown; type?: unknown; attachmentIds?: unknown };
   if (typeof value.rawContent !== "string" || !value.rawContent.trim()) {
     return NextResponse.json({ ok: false, error: "Field `rawContent` is required." }, { status: 400 });
   }
@@ -22,8 +22,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "Field `type` must be `text`." }, { status: 400 });
   }
 
+  const attachmentIds = Array.isArray(value.attachmentIds)
+    ? value.attachmentIds.filter((id): id is string => typeof id === "string" && id.length > 0)
+    : undefined;
+
   try {
-    const entry = await createEntry({ rawContent: value.rawContent.trim(), type: "text" });
+    const entry = await createEntry({ rawContent: value.rawContent.trim(), type: "text", attachmentIds });
     return NextResponse.json({
       ok: true,
       data: {
