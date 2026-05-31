@@ -130,7 +130,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
               type="button"
               onClick={() => setMode(m.key)}
               className={`flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
-                mode === m.key ? "bg-cyan-400 text-slate-950" : "text-slate-400 hover:text-white"
+                mode === m.key ? "bg-red-500 text-white" : "text-slate-400 hover:text-white"
               }`}
             >
               {m.label}
@@ -144,7 +144,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
               type="date"
               value={dateValue}
               onChange={(e) => setDateValue(e.target.value)}
-              className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400/50 [color-scheme:dark]"
+              className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none focus:border-red-500/50 [color-scheme:dark]"
             />
             {dateValue && (
               <button
@@ -164,7 +164,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="输入关键词，匹配正文、摘要、标签、情绪"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-red-500/50"
           />
         )}
 
@@ -177,13 +177,13 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
                 onChange={(e) => setAiQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && runAiSearch()}
                 placeholder="用自然语言描述你想找的，如「那次很焦虑的事」"
-                className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-red-500/50"
               />
               <button
                 type="button"
                 onClick={runAiSearch}
                 disabled={aiLoading}
-                className="shrink-0 rounded-xl bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+                className="shrink-0 rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-400 disabled:opacity-60"
               >
                 {aiLoading ? "查找中..." : "查找"}
               </button>
@@ -195,7 +195,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
                 type="button"
                 onClick={handleReindex}
                 disabled={indexing}
-                className="shrink-0 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1.5 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20 disabled:opacity-60"
+                className="shrink-0 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-60"
               >
                 {indexing ? "重建中..." : "重建记忆索引"}
               </button>
@@ -279,7 +279,7 @@ function EntryCard({ item }: { item: ManageItem }) {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="shrink-0 rounded-lg px-2 py-1 text-xs text-cyan-300 transition hover:bg-cyan-400/10"
+              className="shrink-0 rounded-lg px-2 py-1 text-xs text-red-400 transition hover:bg-red-500/10"
             >
               编辑
             </button>
@@ -291,7 +291,7 @@ function EntryCard({ item }: { item: ManageItem }) {
       {editing ? (
         <div className="space-y-3">
           <textarea
-            className="min-h-40 w-full resize-y rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-white outline-none focus:border-cyan-400/50"
+            className="min-h-40 w-full resize-y rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-white outline-none focus:border-red-500/50"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             autoFocus
@@ -301,7 +301,7 @@ function EntryCard({ item }: { item: ManageItem }) {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-full bg-cyan-400 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-red-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "保存中..." : "保存"}
             </button>

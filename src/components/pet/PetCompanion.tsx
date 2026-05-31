@@ -258,9 +258,9 @@ export function PetCompanion() {
         {/* 气泡 / 对话面板：根据位置朝上或朝下展开 */}
         <div className={`absolute right-0 ${bubbleBelow ? "top-full mt-2" : "bottom-full mb-2"}`}>
           {open ? (
-            <div className="pointer-events-auto w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-cyan-400/25 bg-slate-900/95 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur">
+            <div className="pointer-events-auto w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-red-500/25 bg-slate-900/95 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-medium text-cyan-200">{petName}</span>
+                <span className="text-xs font-medium text-red-300">{petName}</span>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
@@ -279,13 +279,13 @@ export function PetCompanion() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder={`和${petName}说说话…`}
-                  className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                  className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-red-500/50"
                 />
                 <button
                   type="button"
                   onClick={handleSend}
                   disabled={loading}
-                  className="shrink-0 rounded-xl bg-cyan-400 px-3 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+                  className="shrink-0 rounded-xl bg-red-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-400 disabled:opacity-60"
                 >
                   说
                 </button>
@@ -309,7 +309,7 @@ export function PetCompanion() {
           onPointerUp={onPointerUp}
           aria-label={`拖动或摸摸${petName}`}
           style={{ touchAction: "none" }}
-          className={`pointer-events-auto cursor-grab drop-shadow-[0_6px_16px_rgba(34,211,238,0.35)] active:cursor-grabbing ${
+          className={`pointer-events-auto cursor-grab drop-shadow-[0_6px_16px_rgba(239,68,68,0.35)] active:cursor-grabbing ${
             dragging ? "" : animClass || "animate-petBob"
           }`}
         >
@@ -319,7 +319,7 @@ export function PetCompanion() {
           type="button"
           onClick={() => { setOpen(true); setBubbleVisible(true); }}
           aria-label="和宠物聊天"
-          className="pointer-events-auto absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full border border-cyan-400/40 bg-slate-900 text-xs shadow"
+          className="pointer-events-auto absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full border border-red-500/40 bg-slate-900 text-xs shadow"
         >
           💬
         </button>
