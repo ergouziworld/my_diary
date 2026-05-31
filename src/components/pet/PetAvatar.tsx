@@ -52,10 +52,13 @@ function Eyes({ mood }: { mood: PetMood }) {
     );
   }
   if (mood === "thinking") {
+    // 好奇往上看
     return (
       <g fill={c}>
-        <circle cx="36" cy="46" r="4" />
-        <circle cx="64" cy="46" r="4" />
+        <circle cx="37" cy="43" r="5" />
+        <circle cx="65" cy="43" r="5" />
+        <circle cx="38.6" cy="41" r="1.8" fill="#fff" />
+        <circle cx="66.6" cy="41" r="1.8" fill="#fff" />
       </g>
     );
   }
@@ -77,7 +80,7 @@ function Mouth({ mood }: { mood: PetMood }) {
   if (mood === "sad") return <path d="M44 62 q6 -7 12 0" stroke={c} strokeWidth={3} fill="none" strokeLinecap="round" />;
   if (mood === "worried") return <path d="M43 60 q4 -4 7 0 q4 4 8 0" stroke={c} strokeWidth={2.6} fill="none" strokeLinecap="round" />;
   if (mood === "sleepy") return <ellipse cx="50" cy="60" rx="3.5" ry="4.5" fill={c} />;
-  if (mood === "thinking") return <line x1="46" y1="60" x2="56" y2="60" stroke={c} strokeWidth={3} strokeLinecap="round" />;
+  if (mood === "thinking") return <ellipse cx="50" cy="61" rx="3" ry="3.5" fill={c} />;
   return <path d="M44 59 q6 5 12 0" stroke={c} strokeWidth={2.8} fill="none" strokeLinecap="round" />;
 }
 
@@ -108,6 +111,12 @@ export function PetAvatar({ mood, size = 72 }: { mood: PetMood; size?: number })
       )}
       <Eyes mood={mood} />
       <Mouth mood={mood} />
+      {mood === "thinking" && (
+        <text x="76" y="28" fontSize="22" fontWeight="bold" fill="#fde047">?</text>
+      )}
+      {mood === "sleepy" && (
+        <text x="74" y="30" fontSize="16" fill="#94a3b8">z</text>
+      )}
     </svg>
   );
 }
