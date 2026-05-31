@@ -86,6 +86,14 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
 
   return (
     <Panel title="最近记录" subtitle="">
+      <div className="mb-3 flex justify-end">
+        <Link
+          href="/manage"
+          className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1.5 text-xs font-medium text-cyan-200 transition hover:bg-cyan-400/20"
+        >
+          管理全部日记 →
+        </Link>
+      </div>
       <div className="space-y-4">
         {recentItems.length ? (
           recentItems.map((item) => (
