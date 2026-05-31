@@ -48,17 +48,25 @@ export function PetCompanion() {
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wanderTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openRef = useRef(false);
   const loadingRef = useRef(false);
+  const draggingRef = useRef(false);
   const petNameRef = useRef(DEFAULT_NAME);
   const drag = useRef<{ sx: number; sy: number; ox: number; oy: number; moved: boolean } | null>(null);
 
   useEffect(() => { openRef.current = open; }, [open]);
   useEffect(() => { loadingRef.current = loading; }, [loading]);
+  useEffect(() => { draggingRef.current = dragging; }, [dragging]);
   useEffect(() => { petNameRef.current = petName; }, [petName]);
 
-  const runAction = useCallback((action: PetAction) => {
+  const playAnim = useCallback((cls: string, ms: number) => {
     if (animTimer.current) clearTimeout(animTimer.current);
+    setAnimClass(cls);
+    animTimer.current = setTimeout(() => setAnimClass(""), ms);
+  }, []);
+
+  const runAction = useCallback((action: PetAction) => {
     if (action === "walk_left") {
       setPos((p) => (p ? { ...p, x: clamp(p.x - WALK_STEP, 8, maxX()) } : p));
       return;
@@ -72,16 +80,15 @@ export function PetCompanion() {
       return;
     }
     const anim = ACTION_ANIM[action];
-    if (anim) {
-      setAnimClass(anim.cls);
-      animTimer.current = setTimeout(() => setAnimClass(""), anim.ms);
-    }
-  }, []);
+    if (anim) playAnim(anim.cls, anim.ms);
+  }, [playAnim]);
 
   const ask = useCallback(async (trigger: "greeting" | "chat" | "idle" | "touch", message?: string) => {
     setLoading(true);
-    if (trigger !== "idle") {
+    if (trigger === "greeting" || trigger === "chat") {
       setMood("thinking");
+      setBubbleVisible(true);
+    } else if (trigger === "touch") {
       setBubbleVisible(true);
     }
     try {
@@ -135,6 +142,7 @@ export function PetCompanion() {
       /* ignore */
     }
 
+    // AI 自主"想做什么"：较慢（说话/表情/带感情的动作），省 token
     const schedule = () => {
       const delay = 60000 + Math.random() * 60000;
       tickTimer.current = setTimeout(() => {
@@ -146,9 +154,32 @@ export function PetCompanion() {
     };
     schedule();
 
+    // 环境漫游：代码驱动、频繁、免费——让它真的到处溜达
+    const wander = () => {
+      const delay = 7000 + Math.random() * 6000;
+      wanderTimer.current = setTimeout(() => {
+        const idle =
+          typeof document !== "undefined" &&
+          !document.hidden && !openRef.current && !draggingRef.current && !loadingRef.current;
+        if (idle) {
+          const r = Math.random();
+          if (r < 0.6) {
+            setPos((p) => (p ? { x: clamp(p.x + (Math.random() * 2 - 1) * 170, 8, maxX()), y: p.y } : p));
+          } else if (r < 0.82) {
+            playAnim("pet-jump", 700);
+          } else {
+            playAnim("pet-look", 1200);
+          }
+        }
+        wander();
+      }, delay);
+    };
+    wander();
+
     return () => {
       window.removeEventListener("resize", onResize);
       if (tickTimer.current) clearTimeout(tickTimer.current);
+      if (wanderTimer.current) clearTimeout(wanderTimer.current);
       if (animTimer.current) clearTimeout(animTimer.current);
       if (hideTimer.current) clearTimeout(hideTimer.current);
     };
@@ -177,6 +208,9 @@ export function PetCompanion() {
 
   function handlePoke() {
     if (loading) return;
+    // 立刻给个活泼反应，不要先呆住
+    setMood("excited");
+    playAnim("pet-wiggle", 700);
     void ask("touch");
   }
 
