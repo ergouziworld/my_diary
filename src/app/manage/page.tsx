@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { SectionHeader } from "@/components/common/SectionHeader";
 import { EntryManager, type ManageItem } from "@/components/entry/EntryManager";
 import { listEntries } from "@/server/entries";
 
@@ -15,6 +14,7 @@ export default async function ManagePage() {
       .map((a) => ({ id: a.id, url: a.fileUrl }));
     return {
       id: entry.id,
+      createdAtISO: entry.createdAt.toISOString(),
       meta: entry.createdAt.toLocaleString("zh-CN", {
         year: "numeric",
         month: "2-digit",
@@ -32,20 +32,22 @@ export default async function ManagePage() {
   });
 
   return (
-    <div className="space-y-6">
-      <SectionHeader
-        title="管理日记"
-        description="回看、修改或删除你的全部日记。修改后 AI 会按新内容重新分析。"
-        action={
-          <Link
-            href="/"
-            className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 transition hover:text-white"
-          >
-            返回首页
-          </Link>
-        }
-      />
-      <p className="text-sm text-slate-500">共 {items.length} 条记录</p>
+    <div className="space-y-5">
+      <Link
+        href="/"
+        aria-label="返回首页"
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300 transition hover:text-white"
+      >
+        <span className="text-base leading-none">←</span> 返回首页
+      </Link>
+
+      <div className="space-y-1">
+        <h2 className="text-xl font-semibold text-white">管理日记</h2>
+        <p className="text-sm leading-6 text-slate-400">
+          回看、查找、修改或删除你的全部日记。支持按日历、关键词和 AI 语义查找。
+        </p>
+      </div>
+
       <EntryManager items={items} />
     </div>
   );
