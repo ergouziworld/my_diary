@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import { getUserId } from "@/lib/auth";
+import { retrieveContext } from "@/server/ai/retrieval";
+
+export const dynamic = "force-dynamic";
 
 function getProviderConfig() {
   const provider = process.env.AI_PROVIDER?.toLowerCase().trim();
@@ -31,7 +35,18 @@ function getProviderConfig() {
 }
 
 const SYSTEM_PROMPT =
-  "你是用户的私人 AI 助理，了解他的日记和生活记录。请认真、详细地回答用户的问题，回答长度和 ChatGPT 保持一致，需要多长就多长。";
+  "你是用户的私人 AI 助理，可以访问从他的日记中检索出的相关片段。" +
+  "回答时请优先依据这些片段，引用时自然地带上日期（例如「你在 6 月 3 日写到…」），让用户感到你真的读过他的记录。" +
+  "如果检索到的片段不足以回答，就如实说明你在记录里没找到相关内容，再给出一般性建议，不要编造日记里没有的事实。" +
+  "请认真、详细地回答，回答长度和 ChatGPT 保持一致，需要多长就多长。";
+
+function buildContextMessage(contextText: string) {
+  return (
+    "以下是从用户日记中检索到的、与当前问题最相关的片段（按相关度排序）。" +
+    "请把它们当作回答的主要依据：\n\n" +
+    contextText
+  );
+}
 
 export async function POST(req: Request) {
   let body: unknown;
@@ -60,6 +75,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "AI API key is not configured." }, { status: 500 });
   }
 
+  // 检索用户日记里与问题相关的片段，拼进上下文。失败不阻断对话。
+  let contextText = "";
+  try {
+    const userId = await getUserId();
+    const retrieval = await retrieveContext(userId, question.trim());
+    contextText = retrieval.contextText;
+  } catch {
+    contextText = "";
+  }
+
+  const messages: Array<{ role: "system" | "user"; content: string }> = [
+    { role: "system", content: SYSTEM_PROMPT }
+  ];
+  if (contextText) {
+    messages.push({ role: "system", content: buildContextMessage(contextText) });
+  }
+  messages.push({ role: "user", content: question.trim() });
+
   let upstreamResponse: Response;
   try {
     upstreamResponse = await fetch(`${config.baseUrl.replace(/\/$/, "")}/chat/completions`, {
@@ -70,10 +103,7 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: config.model,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: question.trim() }
-        ],
+        messages,
         stream: true,
         temperature: 0.7
       })
