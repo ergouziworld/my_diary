@@ -25,7 +25,7 @@ export default async function HomePage({
         <Link
           href="/"
           className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
-            !isTimeline ? "bg-red-500 text-white" : "text-slate-400 hover:text-white"
+            !isTimeline ? "bg-accent-500 text-white" : "text-slate-400 hover:text-white"
           }`}
         >
           概览
@@ -33,7 +33,7 @@ export default async function HomePage({
         <Link
           href="/?view=timeline"
           className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
-            isTimeline ? "bg-red-500 text-white" : "text-slate-400 hover:text-white"
+            isTimeline ? "bg-accent-500 text-white" : "text-slate-400 hover:text-white"
           }`}
         >
           时间线
@@ -52,9 +52,9 @@ export default async function HomePage({
 
           <Link
             href="/world"
-            className="group relative block overflow-hidden rounded-[2rem] border border-red-500/25 bg-[radial-gradient(ellipse_at_top_right,_rgba(239,68,68,0.18),_transparent_60%),linear-gradient(135deg,_rgba(15,23,42,0.95),_rgba(2,6,23,0.95))] p-6 shadow-[0_0_50px_rgba(239,68,68,0.08)] transition hover:border-red-500/45"
+            className="group relative block overflow-hidden rounded-[2rem] border border-accent-500/25 bg-[radial-gradient(ellipse_at_top_right,_rgb(var(--accent-500)_/_0.18),_transparent_60%),linear-gradient(135deg,_rgba(15,23,42,0.95),_rgba(2,6,23,0.95))] p-6 shadow-[0_0_50px_rgb(var(--accent-500)_/_0.08)] transition hover:border-accent-500/45"
           >
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-red-400/80">3D · Memory World</p>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-400/80">3D · Memory World</p>
             <h3 className="mt-2 text-xl font-semibold text-white">进入记忆世界 →</h3>
             <p className="mt-1 text-sm text-slate-400">把日记走成一片可以漫步的风景。全屏沉浸，手机摇杆操作。</p>
           </Link>
@@ -98,7 +98,7 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
       <div className="mb-3 flex justify-end">
         <Link
           href="/manage"
-          className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/20"
+          className="rounded-full border border-accent-500/30 bg-accent-500/10 px-4 py-1.5 text-xs font-medium text-accent-300 transition hover:bg-accent-500/20"
         >
           管理全部日记 →
         </Link>

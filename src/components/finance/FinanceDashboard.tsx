@@ -37,7 +37,7 @@ function inPeriod(iso: string, period: Period): boolean {
 }
 
 const CATEGORY_COLORS = [
-  "bg-red-500", "bg-emerald-400", "bg-amber-400", "bg-rose-400",
+  "bg-accent-500", "bg-emerald-400", "bg-amber-400", "bg-rose-400",
   "bg-violet-400", "bg-sky-400", "bg-lime-400", "bg-pink-400"
 ];
 
@@ -101,7 +101,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
             type="button"
             onClick={() => setPeriod(p.key)}
             className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
-              period === p.key ? "bg-red-500 text-white" : "text-slate-400 hover:text-white"
+              period === p.key ? "bg-accent-500 text-white" : "text-slate-400 hover:text-white"
             }`}
           >
             {p.label}
@@ -172,7 +172,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
               <div key={t.label} className="flex min-w-[28px] flex-1 flex-col items-center gap-1">
                 <div className="flex w-full flex-1 items-end" style={{ height: "90px" }}>
                   <div
-                    className="w-full rounded-t bg-red-500/70"
+                    className="w-full rounded-t bg-accent-500/70"
                     style={{ height: `${view.trendMax ? Math.max(4, (t.amount / view.trendMax) * 90) : 0}px` }}
                     title={fmt(t.amount)}
                   />

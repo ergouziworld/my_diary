@@ -85,7 +85,7 @@ export default function Page() {
         <button
           onClick={handleReindex}
           disabled={indexing}
-          className="rounded-full border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full border border-accent-500/40 bg-accent-500/10 px-4 py-2 text-sm font-medium text-accent-300 transition hover:bg-accent-500/20 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {indexing ? "建立索引中..." : "重建记忆索引"}
         </button>
@@ -97,7 +97,7 @@ export default function Page() {
       <Panel title="长期记忆问答" subtitle="先提问，再由服务端调用配置的 AI 提供商。">
         <div className="space-y-4">
           <textarea
-            className="min-h-36 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-red-500/50"
+            className="min-h-36 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
             placeholder="输入你的问题，例如：我最近为什么焦虑？"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
@@ -111,7 +111,7 @@ export default function Page() {
           <button
             onClick={handleAsk}
             disabled={loading}
-            className="rounded-full bg-red-500 px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "生成中..." : "开始回答"}
           </button>

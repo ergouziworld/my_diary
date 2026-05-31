@@ -70,7 +70,7 @@ export function BigInputBox() {
   return (
     <div className="space-y-4">
       <textarea
-        className="min-h-44 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-red-500/50"
+        className="min-h-44 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
         placeholder="今天发生了什么？"
         value={content}
         onChange={(event) => setContent(event.target.value)}
@@ -81,7 +81,7 @@ export function BigInputBox() {
           onPointerDown={() => setStatus("已点击，准备提交")}
           onClick={handleSubmit}
           disabled={loading}
-          className="rounded-full bg-red-500 px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "处理中..." : "快速记一条"}
         </button>
