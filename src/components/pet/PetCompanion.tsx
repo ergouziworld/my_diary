@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PetAvatar, type PetMood } from "./PetAvatar";
 
 const PET_NAME_KEY = "pet:name";
+const PET_POS_KEY = "pet:pos";
 const GREETED_KEY = "pet:greeted";
 const DEFAULT_NAME = "团子";
+const SIZE = 72;
 
 type PetAction =
   | "idle" | "walk_left" | "walk_right" | "jump" | "spin" | "wiggle" | "nuzzle" | "sleep" | "look_around";
 
-// 动作 → 一次性动画 class 与时长（walk/sleep/idle 不用一次性动画）
 const ACTION_ANIM: Partial<Record<PetAction, { cls: string; ms: number }>> = {
   jump: { cls: "pet-jump", ms: 700 },
   spin: { cls: "pet-spin", ms: 800 },
@@ -19,12 +20,17 @@ const ACTION_ANIM: Partial<Record<PetAction, { cls: string; ms: number }>> = {
   look_around: { cls: "pet-look", ms: 1200 }
 };
 
-const WALK_STEP = 84; // 每次走动的像素
-const WALK_MIN = -200; // 最左（向屏幕内）
-const WALK_MAX = 0; // 最右（初始角落）
+const WALK_STEP = 90;
 
 function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(max, v));
+}
+
+function maxX() {
+  return (typeof window !== "undefined" ? window.innerWidth : 400) - SIZE - 8;
+}
+function maxY() {
+  return (typeof window !== "undefined" ? window.innerHeight : 800) - SIZE - 8;
 }
 
 export function PetCompanion() {
@@ -35,8 +41,9 @@ export function PetCompanion() {
   const [loading, setLoading] = useState(false);
   const [bubbleVisible, setBubbleVisible] = useState(false);
   const [petName, setPetName] = useState(DEFAULT_NAME);
-  const [offsetX, setOffsetX] = useState(0);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [animClass, setAnimClass] = useState("");
+  const [dragging, setDragging] = useState(false);
 
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -44,20 +51,20 @@ export function PetCompanion() {
   const openRef = useRef(false);
   const loadingRef = useRef(false);
   const petNameRef = useRef(DEFAULT_NAME);
+  const drag = useRef<{ sx: number; sy: number; ox: number; oy: number; moved: boolean } | null>(null);
 
   useEffect(() => { openRef.current = open; }, [open]);
   useEffect(() => { loadingRef.current = loading; }, [loading]);
   useEffect(() => { petNameRef.current = petName; }, [petName]);
 
-  // 执行 AI 选定的动作（代码负责"怎么演"）
   const runAction = useCallback((action: PetAction) => {
     if (animTimer.current) clearTimeout(animTimer.current);
     if (action === "walk_left") {
-      setOffsetX((x) => clamp(x - WALK_STEP, WALK_MIN, WALK_MAX));
+      setPos((p) => (p ? { ...p, x: clamp(p.x - WALK_STEP, 8, maxX()) } : p));
       return;
     }
     if (action === "walk_right") {
-      setOffsetX((x) => clamp(x + WALK_STEP, WALK_MIN, WALK_MAX));
+      setPos((p) => (p ? { ...p, x: clamp(p.x + WALK_STEP, 8, maxX()) } : p));
       return;
     }
     if (action === "sleep") {
@@ -88,8 +95,6 @@ export function PetCompanion() {
       if (typeof data.line === "string" && data.line) {
         setLine(data.line);
         setBubbleVisible(true);
-      } else if (trigger === "idle") {
-        // 自主动作可以不说话，不强行弹气泡
       }
       if (data.action) runAction(data.action);
     } catch {
@@ -100,11 +105,28 @@ export function PetCompanion() {
     }
   }, [runAction]);
 
-  // 初始化名字 + 每次会话打一次招呼 + 启动自主活动循环
+  // 初始化位置（读存储或默认右下角）
   useEffect(() => {
+    let initial = { x: maxX(), y: maxY() - 80 };
     try {
+      const saved = localStorage.getItem(PET_POS_KEY);
+      if (saved) {
+        const p = JSON.parse(saved) as { x: number; y: number };
+        if (typeof p.x === "number" && typeof p.y === "number") {
+          initial = { x: clamp(p.x, 8, maxX()), y: clamp(p.y, 8, maxY()) };
+        }
+      }
       const savedName = localStorage.getItem(PET_NAME_KEY);
       if (savedName) setPetName(savedName);
+    } catch {
+      /* ignore */
+    }
+    setPos(initial);
+
+    const onResize = () => setPos((p) => (p ? { x: clamp(p.x, 8, maxX()), y: clamp(p.y, 8, maxY()) } : p));
+    window.addEventListener("resize", onResize);
+
+    try {
       if (!sessionStorage.getItem(GREETED_KEY)) {
         sessionStorage.setItem(GREETED_KEY, "1");
         void ask("greeting");
@@ -113,7 +135,6 @@ export function PetCompanion() {
       /* ignore */
     }
 
-    // 自主活动：每隔 60~120s 问一次 AI 想做什么（页面可见、未在对话/加载时）
     const schedule = () => {
       const delay = 60000 + Math.random() * 60000;
       tickTimer.current = setTimeout(() => {
@@ -126,6 +147,7 @@ export function PetCompanion() {
     schedule();
 
     return () => {
+      window.removeEventListener("resize", onResize);
       if (tickTimer.current) clearTimeout(tickTimer.current);
       if (animTimer.current) clearTimeout(animTimer.current);
       if (hideTimer.current) clearTimeout(hideTimer.current);
@@ -133,7 +155,16 @@ export function PetCompanion() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 气泡在面板关闭时定时自动隐藏
+  // 位置变化时存一下（拖动结束/走动后）
+  useEffect(() => {
+    if (!pos || dragging) return;
+    try {
+      localStorage.setItem(PET_POS_KEY, JSON.stringify(pos));
+    } catch {
+      /* ignore */
+    }
+  }, [pos, dragging]);
+
   useEffect(() => {
     if (hideTimer.current) clearTimeout(hideTimer.current);
     if (bubbleVisible && !open && !loading && line) {
@@ -156,65 +187,99 @@ export function PetCompanion() {
     void ask("chat", text);
   }
 
+  // 拖拽
+  function onPointerDown(e: React.PointerEvent) {
+    if (!pos) return;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    drag.current = { sx: e.clientX, sy: e.clientY, ox: pos.x, oy: pos.y, moved: false };
+    setDragging(true);
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.sx;
+    const dy = e.clientY - d.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 6) d.moved = true;
+    setPos({ x: clamp(d.ox + dx, 8, maxX()), y: clamp(d.oy + dy, 8, maxY()) });
+  }
+  function onPointerUp() {
+    const d = drag.current;
+    drag.current = null;
+    setDragging(false);
+    if (d && !d.moved) handlePoke(); // 没怎么移动 = 轻点 = 摸摸
+  }
+
+  const bubbleBelow = pos !== null && pos.y < 150;
+
   return (
     <div
-      className="pointer-events-none fixed bottom-24 right-3 z-40 flex flex-col items-end gap-2 transition-transform duration-[1200ms] ease-in-out md:bottom-6"
-      style={{ transform: `translateX(${offsetX}px)` }}
+      className="pointer-events-none fixed left-0 top-0 z-40"
+      style={{
+        transform: `translate(${pos?.x ?? 0}px, ${pos?.y ?? 0}px)`,
+        transition: dragging ? "none" : "transform 1s ease-in-out",
+        opacity: pos ? 1 : 0
+      }}
     >
-      {open ? (
-        <div className="pointer-events-auto w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-cyan-400/25 bg-slate-900/95 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-cyan-200">{petName}</span>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-1.5 text-slate-500 transition hover:text-white"
-              aria-label="收起"
-            >
-              ×
-            </button>
-          </div>
-          <div className="min-h-[2.5rem] rounded-xl bg-white/5 px-3 py-2 text-sm leading-relaxed text-slate-200">
-            {loading ? "……" : line || "想跟我说点什么？"}
-          </div>
-          <div className="mt-2 flex gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder={`和${petName}说说话…`}
-              className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
-            />
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={loading}
-              className="shrink-0 rounded-xl bg-cyan-400 px-3 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
-            >
-              说
-            </button>
-          </div>
-        </div>
-      ) : (
-        bubbleVisible &&
-        (loading || line) && (
-          <div className="pointer-events-auto max-w-[min(16rem,calc(100vw-5rem))] rounded-2xl rounded-br-sm border border-white/10 bg-slate-900/95 px-3 py-2 text-sm leading-relaxed text-slate-200 shadow-lg backdrop-blur">
-            {loading ? "……" : line}
-          </div>
-        )
-      )}
-
-      {/* 形象 + 聊天入口 */}
       <div className="relative">
+        {/* 气泡 / 对话面板：根据位置朝上或朝下展开 */}
+        <div className={`absolute right-0 ${bubbleBelow ? "top-full mt-2" : "bottom-full mb-2"}`}>
+          {open ? (
+            <div className="pointer-events-auto w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-cyan-400/25 bg-slate-900/95 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-medium text-cyan-200">{petName}</span>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-1.5 text-slate-500 transition hover:text-white"
+                  aria-label="收起"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="min-h-[2.5rem] rounded-xl bg-white/5 px-3 py-2 text-sm leading-relaxed text-slate-200">
+                {loading ? "……" : line || "想跟我说点什么？"}
+              </div>
+              <div className="mt-2 flex gap-2">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                  placeholder={`和${petName}说说话…`}
+                  className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-cyan-400/50"
+                />
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={loading}
+                  className="shrink-0 rounded-xl bg-cyan-400 px-3 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
+                >
+                  说
+                </button>
+              </div>
+            </div>
+          ) : (
+            bubbleVisible &&
+            (loading || line) && (
+              <div className="pointer-events-auto w-max max-w-[min(16rem,calc(100vw-5rem))] rounded-2xl border border-white/10 bg-slate-900/95 px-3 py-2 text-sm leading-relaxed text-slate-200 shadow-lg backdrop-blur">
+                {loading ? "……" : line}
+              </div>
+            )
+          )}
+        </div>
+
+        {/* 形象（可拖拽，轻点=摸摸） */}
         <button
           type="button"
-          onClick={handlePoke}
-          aria-label={`摸摸${petName}`}
-          className={`pointer-events-auto drop-shadow-[0_6px_16px_rgba(34,211,238,0.35)] transition-transform active:scale-90 ${
-            animClass || "animate-petBob"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          aria-label={`拖动或摸摸${petName}`}
+          style={{ touchAction: "none" }}
+          className={`pointer-events-auto cursor-grab drop-shadow-[0_6px_16px_rgba(34,211,238,0.35)] active:cursor-grabbing ${
+            dragging ? "" : animClass || "animate-petBob"
           }`}
         >
-          <PetAvatar mood={mood} size={72} />
+          <PetAvatar mood={mood} size={SIZE} />
         </button>
         <button
           type="button"
