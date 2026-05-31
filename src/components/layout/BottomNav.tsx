@@ -7,6 +7,7 @@ const bottomLinks = [
   { href: "/", label: "首页", icon: "⊞" },
   { href: "/record", label: "记录", icon: "◉" },
   { href: "/tasks", label: "任务", icon: "☑" },
+  { href: "/world", label: "世界", icon: "◍" },
   { href: "/chat", label: "大 AI", icon: "✦" },
   { href: "/settings", label: "设置", icon: "⚙" },
 ] as const;
@@ -15,7 +16,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-white/10 bg-slate-950 md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex transform-gpu border-t border-white/10 bg-slate-950 pb-[env(safe-area-inset-bottom)] md:hidden">
       {bottomLinks.map((item) => {
         const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         return (

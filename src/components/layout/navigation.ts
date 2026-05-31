@@ -5,8 +5,8 @@ export const sidebarLinks = [
   { href: "/tasks", label: "任务" },
   { href: "/finance", label: "财务" },
   { href: "/album", label: "相册" },
+  { href: "/world", label: "记忆世界" },
   { href: "/work", label: "工作学习" },
   { href: "/chat", label: "大 AI" },
   { href: "/settings", label: "设置" },
 ] as const;
-
