@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject, type PointerEvent as ReactPointerEvent } from "react";
 import * as THREEImport from "three";
 import type { MemoryWorldData, MemoryWorldNode } from "@/server/world";
 
@@ -113,6 +113,7 @@ function isInWater(x: number, z: number) {
 
 export function MemoryWorld({ data }: MemoryWorldProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<WorldControls | null>(null);
   const [selectedId, setSelectedId] = useState(data.nodes[0]?.id ?? "");
   const [nearId, setNearId] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
@@ -120,6 +121,8 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
   const [movementMode, setMovementMode] = useState<MovementMode>("walking");
   const [playerMap, setPlayerMap] = useState<PlayerMapPoint>({ x: 50, y: 50 });
   const [loadingText, setLoadingText] = useState("正在准备安静空间...");
+  const [isTouch, setIsTouch] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
 
   const selected = useMemo(
     () => data.nodes.find((node) => node.id === selectedId) ?? data.nodes[0],
@@ -127,44 +130,19 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
   );
 
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
-    let cancelled = false;
-
-    setLoadingText("正在加载柔和的空间...");
-
-    void import("three")
-      .then((THREE) => {
-        if (cancelled || !mountRef.current) return;
-
-        try {
-          cleanup = createScene({
-            THREE,
-            mount: mountRef.current,
-            nodes: data.nodes,
-            onSelect: (id) => {
-              setSelectedId(id);
-              setPanelOpen(true);
-            },
-            onNear: setNearId,
-            onStamina: setStamina,
-            onMode: setMovementMode,
-            onPlayerMove: setPlayerMap,
-            onReady: () => setLoadingText(""),
-          });
-        } catch (error) {
-          console.error("Memory world scene failed to start", error);
-          if (!cancelled) setLoadingText("空间加载失败，请刷新重试。");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setLoadingText("空间加载失败，请刷新重试。");
-      });
-
+    setIsTouch(
+      typeof window !== "undefined" &&
+        ("ontouchstart" in window || navigator.maxTouchPoints > 0)
+    );
+    const checkOrientation = () => setIsPortrait(window.innerHeight > window.innerWidth);
+    checkOrientation();
+    window.addEventListener("resize", checkOrientation);
+    window.addEventListener("orientationchange", checkOrientation);
     return () => {
-      cancelled = true;
-      cleanup?.();
+      window.removeEventListener("resize", checkOrientation);
+      window.removeEventListener("orientationchange", checkOrientation);
     };
-  }, [data.nodes]);
+  }, []);
 
   useEffect(() => {
     let cleanup: (() => void) | undefined;
@@ -172,11 +150,11 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
 
     setLoadingText("正在加载安静空间...");
 
-    requestAnimationFrame(() => {
+    const raf = requestAnimationFrame(() => {
       if (cancelled || !mountRef.current) return;
 
       try {
-        cleanup = createScene({
+        const result = createScene({
           THREE: THREEImport,
           mount: mountRef.current,
           nodes: data.nodes,
@@ -190,15 +168,19 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
           onPlayerMove: setPlayerMap,
           onReady: () => setLoadingText(""),
         });
+        cleanup = result.cleanup;
+        controlsRef.current = result.controls;
       } catch (error) {
-        console.error("Memory world static scene failed to start", error);
+        console.error("Memory world scene failed to start", error);
         if (!cancelled) setLoadingText("空间加载失败，请刷新重试。");
       }
     });
 
     return () => {
       cancelled = true;
+      cancelAnimationFrame(raf);
       cleanup?.();
+      controlsRef.current = null;
     };
   }, [data.nodes]);
 
@@ -211,7 +193,7 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
           <p className="text-xs font-medium uppercase tracking-[0.26em] text-cyan-50/85">Quiet Memory Space</p>
           <h1 className="mt-2 text-2xl font-semibold drop-shadow-[0_2px_10px_rgba(15,23,42,0.45)]">安静空间</h1>
           <p className="mt-1 max-w-md text-sm text-white/82">
-            WASD 移动，Shift 慢跑，Space 轻跳。F 起飞或落地，飞行时 Space 上升、Ctrl 下降。
+            拖动屏幕转视角。手机用左下摇杆移动、右下按钮跳跃/飞行/停留；电脑用 WASD 移动、Space 跳、F 飞、E 停留。
           </p>
         </div>
         <div className="hidden gap-2 text-xs text-white/80 sm:flex">
@@ -354,9 +336,129 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
           ) : null}
         </aside>
       ) : null}
+
+      {isTouch ? <TouchControls controls={controlsRef} flying={movementMode === "flying"} /> : null}
+
+      {isTouch && isPortrait ? (
+        <div className="pointer-events-none absolute left-1/2 top-3 z-30 -translate-x-1/2 rounded-full border border-cyan-200/30 bg-slate-950/80 px-4 py-1.5 text-xs text-cyan-50 backdrop-blur">
+          横屏体验更佳，建议旋转手机 📱
+        </div>
+      ) : null}
     </section>
   );
 }
+
+function TouchControls({
+  controls,
+  flying,
+}: {
+  controls: RefObject<WorldControls | null>;
+  flying: boolean;
+}) {
+  const padRef = useRef<HTMLDivElement>(null);
+  const knobRef = useRef<HTMLDivElement>(null);
+  const activeId = useRef<number | null>(null);
+
+  function applyVector(clientX: number, clientY: number) {
+    const pad = padRef.current;
+    if (!pad) return;
+    const rect = pad.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let dx = (clientX - cx) / (rect.width / 2);
+    let dy = (clientY - cy) / (rect.height / 2);
+    const len = Math.hypot(dx, dy);
+    if (len > 1) {
+      dx /= len;
+      dy /= len;
+    }
+    controls.current?.setMove(dx, dy);
+    if (knobRef.current) {
+      knobRef.current.style.transform = `translate(${dx * 32}px, ${dy * 32}px)`;
+    }
+  }
+
+  function endMove() {
+    activeId.current = null;
+    controls.current?.setMove(0, 0);
+    if (knobRef.current) knobRef.current.style.transform = "translate(0px, 0px)";
+  }
+
+  const holdKey = (key: string) => ({
+    onPointerDown: (e: ReactPointerEvent) => {
+      e.preventDefault();
+      e.currentTarget.setPointerCapture(e.pointerId);
+      controls.current?.press(key);
+    },
+    onPointerUp: (e: ReactPointerEvent) => {
+      e.preventDefault();
+      controls.current?.release(key);
+    },
+    onPointerCancel: () => controls.current?.release(key),
+  });
+
+  const tapKey = (key: string) => ({
+    onPointerDown: (e: ReactPointerEvent) => {
+      e.preventDefault();
+      controls.current?.press(key);
+    },
+  });
+
+  const btn =
+    "pointer-events-auto flex h-14 w-14 select-none items-center justify-center rounded-full border border-white/20 bg-slate-950/55 text-xs font-medium text-white backdrop-blur-md active:bg-cyan-400/30";
+
+  return (
+    <>
+      {/* 左下摇杆 */}
+      <div
+        ref={padRef}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          activeId.current = e.pointerId;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          applyVector(e.clientX, e.clientY);
+        }}
+        onPointerMove={(e) => {
+          if (activeId.current === e.pointerId) applyVector(e.clientX, e.clientY);
+        }}
+        onPointerUp={endMove}
+        onPointerCancel={endMove}
+        className="pointer-events-auto absolute left-6 bottom-8 z-20 grid h-32 w-32 touch-none place-items-center rounded-full border border-white/15 bg-slate-950/40 backdrop-blur-md"
+      >
+        <div
+          ref={knobRef}
+          className="h-14 w-14 rounded-full border border-cyan-200/40 bg-cyan-300/30 shadow-[0_0_24px_rgba(34,211,238,0.5)]"
+        />
+      </div>
+
+      {/* 右下动作按钮 */}
+      <div className="absolute right-6 bottom-8 z-20 flex flex-col items-end gap-3">
+        <button type="button" {...tapKey("e")} className={btn}>
+          停留
+        </button>
+        <div className="flex gap-3">
+          <button type="button" {...tapKey("f")} className={btn}>
+            {flying ? "落地" : "飞行"}
+          </button>
+          <button type="button" {...holdKey(" ")} className={btn}>
+            {flying ? "上升" : "跳"}
+          </button>
+        </div>
+        {flying ? (
+          <button type="button" {...holdKey("control")} className={btn}>
+            下降
+          </button>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
+type WorldControls = {
+  setMove: (x: number, y: number) => void;
+  press: (key: string) => void;
+  release: (key: string) => void;
+};
 
 function createScene({
   THREE,
@@ -379,9 +481,10 @@ function createScene({
   onPlayerMove: (point: PlayerMapPoint) => void;
   onReady: () => void;
 }) {
+  const NOOP_CONTROLS: WorldControls = { setMove: () => {}, press: () => {}, release: () => {} };
   if (mount.dataset.memoryWorldStarted === "1") {
     onReady();
-    return () => {};
+    return { cleanup: () => {}, controls: NOOP_CONTROLS };
   }
   mount.dataset.memoryWorldStarted = "1";
 
@@ -620,32 +723,17 @@ function createScene({
     return nearest && nearestDistance < 4.2 ? nearest : null;
   }
 
-  function handleKeyDown(event: KeyboardEvent) {
-    const key = event.key.toLowerCase();
-    const movementKeys = [
-      "w",
-      "a",
-      "s",
-      "d",
-      "arrowup",
-      "arrowdown",
-      "arrowleft",
-      "arrowright",
-      "shift",
-      " ",
-      "control",
-    ];
+  const MOVEMENT_KEYS = ["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright", "shift", " ", "control"];
 
-    if (movementKeys.includes(key)) {
-      event.preventDefault();
-      keys.add(key);
-    }
+  // 统一的"按下某键"逻辑，键盘和触屏按钮都走这里
+  function pressKey(key: string, repeat = false) {
+    if (MOVEMENT_KEYS.includes(key)) keys.add(key);
 
-    if (key === " " && movementMode === "walking" && playerHeight <= getTerrainHeight(target.x, target.z) + 0.05 && !event.repeat) {
+    if (key === " " && movementMode === "walking" && playerHeight <= getTerrainHeight(target.x, target.z) + 0.05 && !repeat) {
       verticalVelocity = 7.4;
     }
 
-    if (key === "f" && !event.repeat) {
+    if (key === "f" && !repeat) {
       if (movementMode === "flying") {
         const groundY = getTerrainHeight(target.x, target.z);
         playerHeight = Math.max(playerHeight, groundY);
@@ -657,10 +745,29 @@ function createScene({
       }
     }
 
-    if (key === "e" && !event.repeat) {
+    if (key === "e" && !repeat) {
       const nearest = getNearestPoint();
       if (nearest) onSelect(nearest.node.id);
     }
+  }
+
+  function releaseKey(key: string) {
+    keys.delete(key);
+  }
+
+  // 摇杆向量 → w/a/s/d。x 右为正，y 上为负（与屏幕坐标一致）
+  function setMoveAxis(x: number, y: number) {
+    const t = 0.35;
+    if (y < -t) keys.add("w"); else keys.delete("w");
+    if (y > t) keys.add("s"); else keys.delete("s");
+    if (x > t) keys.add("d"); else keys.delete("d");
+    if (x < -t) keys.add("a"); else keys.delete("a");
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    const key = event.key.toLowerCase();
+    if (MOVEMENT_KEYS.includes(key)) event.preventDefault();
+    pressKey(key, event.repeat);
   }
 
   function handleKeyUp(event: KeyboardEvent) {
@@ -896,7 +1003,13 @@ function createScene({
 
   animate();
 
-  return () => {
+  const controls: WorldControls = {
+    setMove: setMoveAxis,
+    press: (key: string) => pressKey(key, false),
+    release: releaseKey,
+  };
+
+  const cleanup = () => {
     delete mount.dataset.memoryWorldStarted;
     cancelAnimationFrame(animationId);
     window.removeEventListener("keydown", handleKeyDown);
@@ -918,6 +1031,8 @@ function createScene({
       mount.removeChild(renderer.domElement);
     }
   };
+
+  return { cleanup, controls };
 }
 
 function toWorldPosition(THREE: ThreeModule, node: MemoryWorldNode, index: number) {
