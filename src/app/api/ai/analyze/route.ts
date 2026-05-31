@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/auth";
 import { analyzeEntry } from "@/server/ai/aiService";
+import { indexEntry } from "@/server/ai/retrieval";
 import {
   memoryCreateEntry,
   memoryFindEntry,
@@ -220,6 +221,13 @@ export async function POST(request: Request) {
           sourceText: item.sourceText
         }))
       );
+    }
+
+    // 分析落库后，更新该条日记的语义检索索引（失败不影响主流程）
+    try {
+      await indexEntry(entryId);
+    } catch (err) {
+      console.error("[indexEntry] failed", err);
     }
 
     return NextResponse.json({ ok: true, provider, data: result });

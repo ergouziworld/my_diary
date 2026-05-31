@@ -16,6 +16,27 @@ export default function Page() {
   const [question, setQuestion] = useState("我最近为什么焦虑？");
   const [answer, setAnswer] = useState("等待输入问题后调用 AI。");
   const [loading, setLoading] = useState(false);
+  const [indexing, setIndexing] = useState(false);
+  const [indexStatus, setIndexStatus] = useState("");
+
+  async function handleReindex() {
+    if (indexing) return;
+    setIndexing(true);
+    setIndexStatus("正在让大 AI 读取你的全部日记...");
+    try {
+      const res = await fetch("/api/ai/reindex", { method: "POST" });
+      const data = (await res.json()) as { ok: boolean; total?: number; indexed?: number; error?: string };
+      if (data.ok) {
+        setIndexStatus(`已建立索引：${data.indexed ?? 0} / ${data.total ?? 0} 条日记。现在可以提问了。`);
+      } else {
+        setIndexStatus(data.error ?? "建立索引失败。");
+      }
+    } catch {
+      setIndexStatus("请求失败，请稍后重试。");
+    } finally {
+      setIndexing(false);
+    }
+  }
 
   async function handleAsk() {
     const text = question.trim();
@@ -57,8 +78,21 @@ export default function Page() {
     <div className="space-y-6">
       <SectionHeader
         title="大 AI"
-        description="这里是长期记忆问答入口，会把你的记录作为上下文交给 AI，再返回可操作建议。"
+        description="这里是长期记忆问答入口，会检索你的相关日记作为上下文交给 AI，再返回可操作建议。"
       />
+
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+        <button
+          onClick={handleReindex}
+          disabled={indexing}
+          className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {indexing ? "建立索引中..." : "重建记忆索引"}
+        </button>
+        <span className="text-xs text-slate-400">
+          {indexStatus || "首次使用或日记有大量更新后，点一次让大 AI 重新读取全部日记。新日记会自动入库。"}
+        </span>
+      </div>
 
       <Panel title="长期记忆问答" subtitle="先提问，再由服务端调用配置的 AI 提供商。">
         <div className="space-y-4">
