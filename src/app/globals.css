@@ -21,10 +21,43 @@ body {
   0%, 100% { transform: translateY(0) rotate(-1deg); }
   50% { transform: translateY(-6px) rotate(1deg); }
 }
+.animate-petBob { animation: petBob 3s ease-in-out infinite; }
 
-.animate-petBob {
-  animation: petBob 3s ease-in-out infinite;
+@keyframes petJump {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-18px); }
+  50% { transform: translateY(-24px); }
+  70% { transform: translateY(-6px); }
 }
+.pet-jump { animation: petJump 0.7s ease-in-out; }
+
+@keyframes petSpin {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
+}
+.pet-spin { animation: petSpin 0.8s ease-in-out; }
+
+@keyframes petWiggle {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-13deg); }
+  40% { transform: rotate(13deg); }
+  60% { transform: rotate(-9deg); }
+  80% { transform: rotate(9deg); }
+}
+.pet-wiggle { animation: petWiggle 0.7s ease-in-out; }
+
+@keyframes petNuzzle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(5px) scale(1.07); }
+}
+.pet-nuzzle { animation: petNuzzle 0.8s ease-in-out; }
+
+@keyframes petLook {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-9deg); }
+  75% { transform: rotate(9deg); }
+}
+.pet-look { animation: petLook 1.2s ease-in-out; }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-petBob { animation: none; }
