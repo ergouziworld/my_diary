@@ -108,11 +108,16 @@ export function RichInputBox() {
     });
     const rawContent = parts.join("\n\n");
 
+    // 只绑定真实的 DB 附件（图片/文档），链接不是 Attachment 记录
+    const attachmentIds = attachments
+      .filter((att) => att.type !== "link" && att.id && !att.id.startsWith("link-"))
+      .map((att) => att.id);
+
     try {
       const savedRes = await fetch("/api/entries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawContent, type: "text" })
+        body: JSON.stringify({ rawContent, type: "text", attachmentIds })
       });
       const saved = (await savedRes.json()) as { ok: boolean; data?: { id?: string }; error?: string };
 
