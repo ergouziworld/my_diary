@@ -3,12 +3,18 @@
 @tailwind utilities;
 
 /* 主题强调色（皮肤切换：改这组变量，全站 accent-* 跟着变） */
+/* 热血羽毛球皮肤：玫红（球衣红）+ 紫罗兰（球裤紫），取自插画 */
 :root, [data-theme="hot"] {
-  --accent-200: 254 202 202;
-  --accent-300: 252 165 165;
-  --accent-400: 248 113 113;
-  --accent-500: 239 68 68;
-  --accent-600: 220 38 38;
+  --accent-200: 254 205 211;
+  --accent-300: 253 164 175;
+  --accent-400: 251 113 133;
+  --accent-500: 244 63 94;
+  --accent-600: 225 29 72;
+  --accent2-400: 167 139 250;
+  --accent2-500: 139 92 246;
+  --accent2-600: 124 58 237;
+  --wallpaper-background: radial-gradient(circle at 18% 18%, rgb(45 212 191 / 0.38), transparent 32%), radial-gradient(circle at 82% 12%, rgb(244 114 182 / 0.32), transparent 30%), linear-gradient(135deg, #020617, #172554 52%, #111827);
+  --wallpaper-overlay: linear-gradient(180deg, rgb(2 6 23 / 0.72), rgb(2 6 23 / 0.86));
 }
 [data-theme="calm"] {
   --accent-200: 165 243 252;
@@ -16,6 +22,9 @@
   --accent-400: 34 211 238;
   --accent-500: 6 182 212;
   --accent-600: 8 145 178;
+  --accent2-400: 96 165 250;
+  --accent2-500: 59 130 246;
+  --accent2-600: 37 99 235;
 }
 
 html, body {
@@ -24,8 +33,10 @@ html, body {
 }
 
 body {
-  background: radial-gradient(ellipse at top, rgb(var(--accent-500) / 0.1), transparent 55%), #020617;
+  background: var(--wallpaper-overlay), var(--wallpaper-background), #020617;
   background-attachment: fixed;
+  background-size: cover;
+  transition: background 220ms ease;
 }
 
 @layer utilities {
