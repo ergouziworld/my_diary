@@ -2,6 +2,7 @@
     "name": "my_diary",
     "private": true,
     "version": "0.11.0",
+    "main": "electron/main.js",
     "scripts": {
         "dev": "next dev",
         "dev:world": "next dev --hostname 127.0.0.1 --port 3001",
@@ -10,7 +11,9 @@
         "preview": "npm run build && npm run start -- --hostname 127.0.0.1 --port 3000",
         "lint": "next lint",
         "prisma:generate": "prisma generate",
-        "prisma:migrate": "prisma migrate dev"
+        "prisma:migrate": "prisma migrate dev",
+        "electron": "electron .",
+        "electron:build": "next build && electron-builder"
     },
     "dependencies": {
         "@prisma/client": "^6.0.0",
@@ -30,11 +33,38 @@
         "@types/react-dom": "^19.0.0",
         "@types/three": "^0.184.1",
         "autoprefixer": "^10.4.0",
+        "electron": "^35.0.0",
+        "electron-builder": "^25.0.0",
         "eslint": "^9.0.0",
         "eslint-config-next": "^15.0.0",
         "postcss": "^8.4.0",
         "prisma": "^6.0.0",
         "tailwindcss": "^3.4.0",
         "typescript": "^5.6.0"
+    },
+    "build": {
+        "appId": "com.myapp.mydiary",
+        "productName": "My Diary",
+        "directories": {
+            "output": "dist-electron"
+        },
+        "files": [
+            "electron/**/*",
+            ".next/**/*",
+            "public/**/*",
+            "prisma/**/*",
+            "node_modules/**/*",
+            "package.json"
+        ],
+        "win": {
+            "target": "nsis",
+            "icon": "public/favicon.ico"
+        },
+        "mac": {
+            "target": "dmg"
+        },
+        "linux": {
+            "target": "AppImage"
+        }
     }
 }
