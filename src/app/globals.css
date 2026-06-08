@@ -34,9 +34,16 @@ html, body {
 
 body {
   background: var(--wallpaper-overlay), var(--wallpaper-background), #020617;
-  background-attachment: fixed;
+  background-attachment: scroll;
+  background-position: center;
+  background-repeat: no-repeat;
   background-size: cover;
-  transition: background 220ms ease;
+}
+
+@supports (-webkit-touch-callout: none) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 @layer utilities {
@@ -90,3 +97,4 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-petBob { animation: none; }
 }
+

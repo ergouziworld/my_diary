@@ -1,4 +1,5 @@
 export type WallpaperKey = "none" | "aurora" | "paper" | "sunset" | "forest" | "midnight";
+export type WallpaperValue = WallpaperKey | `image:${string}`;
 
 export type WallpaperOption = {
   key: WallpaperKey;
@@ -7,7 +8,31 @@ export type WallpaperOption = {
   background: string;
   overlay: string;
   preview: string;
+  imageUrl?: string;
 };
+
+function cssUrl(url: string) {
+  return `url(${JSON.stringify(url)}) center / cover no-repeat`;
+}
+
+export function imageWallpaperValue(url: string): WallpaperValue {
+  return `image:${url}`;
+}
+
+export function getWallpaperImageUrl(value: string | null | undefined) {
+  if (!value) return null;
+  if (value.startsWith("image:")) return value.slice("image:".length).trim() || null;
+  if (
+    value.startsWith("/uploads/") ||
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("data:image/") ||
+    value.startsWith("blob:")
+  ) {
+    return value;
+  }
+  return null;
+}
 
 export const WALLPAPERS: WallpaperOption[] = [
   {
@@ -67,8 +92,19 @@ export const WALLPAPERS: WallpaperOption[] = [
 
 export const DEFAULT_WALLPAPER: WallpaperKey = "aurora";
 
-export const WALLPAPER_STORAGE_KEY = "pageWallpapers";
+export function getWallpaper(value: string | null | undefined): WallpaperOption {
+  const imageUrl = getWallpaperImageUrl(value);
+  if (imageUrl) {
+    return {
+      key: "none",
+      label: "Custom image",
+      description: "Uploaded image wallpaper.",
+      background: cssUrl(imageUrl),
+      overlay: "linear-gradient(180deg, rgb(2 6 23 / 0.34), rgb(2 6 23 / 0.7))",
+      preview: cssUrl(imageUrl),
+      imageUrl
+    };
+  }
 
-export function getWallpaper(key: string | null | undefined): WallpaperOption {
-  return WALLPAPERS.find((wallpaper) => wallpaper.key === key) ?? WALLPAPERS[0];
+  return WALLPAPERS.find((wallpaper) => wallpaper.key === value) ?? WALLPAPERS[0];
 }
