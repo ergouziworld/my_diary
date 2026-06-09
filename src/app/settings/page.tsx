@@ -2,7 +2,6 @@
 
 import { signOut } from "next-auth/react";
 import { ThemeSwitcher } from "@/components/settings/ThemeSwitcher";
-import { WallpaperSwitcher } from "@/components/settings/WallpaperSwitcher";
 
 export default function Page() {
   return (
@@ -17,14 +16,6 @@ export default function Page() {
         <p className="mt-1 text-xs text-slate-500">切换全站配色，立即生效。</p>
         <div className="mt-4">
           <ThemeSwitcher />
-        </div>
-      </div>
-
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-        <h2 className="text-sm font-medium text-slate-300">Wallpaper</h2>
-        <p className="mt-1 text-xs text-slate-500">Choose a different background for each page.</p>
-        <div className="mt-4">
-          <WallpaperSwitcher />
         </div>
       </div>
 

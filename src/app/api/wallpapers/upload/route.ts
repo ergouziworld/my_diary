@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { getUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { WALLPAPER_DIR } from "@/lib/wallpapers";
 
 export const runtime = "nodejs";
 
@@ -46,11 +47,12 @@ export async function POST(req: Request) {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  const uploadDir = path.join(process.cwd(), "public", "uploads", "wallpapers");
   await mkdir(uploadDir, { recursive: true });
   await writeFile(path.join(uploadDir, safeName), buffer);
 
-  const fileUrl = `/uploads/${safeName}`;
+  const fileUrl = `${WALLPAPER_DIR}${safeName}`;
+  // 不挂 entryId：是孤立附件，不会出现在日记/相册里
   const attachment = await prisma.attachment.create({
     data: {
       userId,

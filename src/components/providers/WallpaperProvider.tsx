@@ -37,6 +37,14 @@ function preloadImage(url: string) {
   image.src = url;
 }
 
+// 预加载映射里所有图片壁纸，让切页时背景图已在缓存中，避免切换闪烁
+function preloadAllImages(map: WallpaperMap) {
+  for (const value of Object.values(map)) {
+    const wallpaper = getWallpaper(value);
+    if (wallpaper.imageUrl) preloadImage(wallpaper.imageUrl);
+  }
+}
+
 // 同步应用：仅当壁纸值真的变化时才写 CSS 变量，避免无谓重绘/闪烁
 function applyFromMap(pathname: string, map: WallpaperMap) {
   const wallpaper = getWallpaper(map[pathname] ?? DEFAULT_WALLPAPER);
@@ -72,6 +80,7 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
       cachedMap = map;
       cachedUserId = userId;
       applyFromMap(pathname, map);
+      preloadAllImages(map);
     });
     return () => {
       cancelled = true;
@@ -87,6 +96,7 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
         cachedMap = map;
         cachedUserId = userId;
         applyFromMap(pathname, map);
+        preloadAllImages(map);
       });
     }
 
