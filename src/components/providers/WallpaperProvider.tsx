@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -10,12 +10,14 @@ import {
 } from "@/lib/wallpapers";
 
 type WallpaperMap = Record<string, WallpaperValue>;
+type Layer = { id: number; background: string; overlay: string };
 
 // 模块级缓存：避免每次切页都重新请求接口（那会造成切页卡顿 + 背景跳变闪烁）
 let cachedMap: WallpaperMap | null = null;
 let cachedUserId: string | undefined;
 let lastBackground = "";
 let lastOverlay = "";
+let layerSeq = 0;
 const preloadedImages = new Set<string>();
 
 async function fetchWallpaperMap(): Promise<WallpaperMap> {
@@ -45,27 +47,32 @@ function preloadAllImages(map: WallpaperMap) {
   }
 }
 
-// 同步应用：仅当壁纸值真的变化时才写 CSS 变量，避免无谓重绘/闪烁
-function applyFromMap(pathname: string, map: WallpaperMap) {
-  const wallpaper = getWallpaper(map[pathname] ?? DEFAULT_WALLPAPER);
-  if (wallpaper.imageUrl) preloadImage(wallpaper.imageUrl);
-
-  if (wallpaper.background !== lastBackground) {
-    document.documentElement.style.setProperty("--wallpaper-background", wallpaper.background);
-    lastBackground = wallpaper.background;
-  }
-  if (wallpaper.overlay !== lastOverlay) {
-    document.documentElement.style.setProperty("--wallpaper-overlay", wallpaper.overlay);
-    lastOverlay = wallpaper.overlay;
-  }
-}
-
 export function WallpaperProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
-  // 切页：命中缓存就瞬时应用（零网络等待、零闪烁）；缓存缺失或换了用户才拉一次
+  // 用两层背景做淡入淡出：切壁纸时新层淡入覆盖旧层，避免生硬闪烁
+  const [layers, setLayers] = useState<Layer[]>(() =>
+    lastBackground ? [{ id: ++layerSeq, background: lastBackground, overlay: lastOverlay }] : []
+  );
+
+  const applyFromMap = useCallback((path: string, map: WallpaperMap) => {
+    const wallpaper = getWallpaper(map[path] ?? DEFAULT_WALLPAPER);
+    if (wallpaper.imageUrl) preloadImage(wallpaper.imageUrl);
+
+    // 壁纸没变就不动，避免无谓重绘
+    if (wallpaper.background === lastBackground && wallpaper.overlay === lastOverlay) return;
+    lastBackground = wallpaper.background;
+    lastOverlay = wallpaper.overlay;
+
+    setLayers((prev) => {
+      const base = prev.length ? [prev[prev.length - 1]] : [];
+      return [...base, { id: ++layerSeq, background: wallpaper.background, overlay: wallpaper.overlay }];
+    });
+  }, []);
+
+  // 切页：命中缓存瞬时应用；缓存缺失或换用户才拉一次
   useEffect(() => {
     if (status !== "authenticated") return;
 
@@ -85,9 +92,9 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [pathname, status, userId]);
+  }, [pathname, status, userId, applyFromMap]);
 
-  // 用户在设置页/浮窗里改了壁纸：刷新缓存并重应用当前页
+  // 用户在悬浮窗里改了壁纸：刷新缓存并重应用当前页
   useEffect(() => {
     if (status !== "authenticated") return;
 
@@ -106,7 +113,29 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("wallpaperchange", refresh);
       window.removeEventListener("storage", refresh);
     };
-  }, [pathname, status, userId]);
+  }, [pathname, status, userId, applyFromMap]);
 
-  return <>{children}</>;
+  // 新层淡入完成后，移除它下面的旧层
+  function handleEntered(id: number) {
+    setLayers((prev) => (prev.length > 1 ? prev.filter((layer) => layer.id >= id) : prev));
+  }
+
+  return (
+    <>
+      <div aria-hidden className="wp-backdrop">
+        {layers.map((layer, index) => {
+          const isTop = index === layers.length - 1;
+          return (
+            <div
+              key={layer.id}
+              className={`wp-layer${isTop && layers.length > 1 ? " wp-layer-enter" : ""}`}
+              style={{ background: `${layer.overlay}, ${layer.background}, #020617` }}
+              onAnimationEnd={isTop ? () => handleEntered(layer.id) : undefined}
+            />
+          );
+        })}
+      </div>
+      {children}
+    </>
+  );
 }

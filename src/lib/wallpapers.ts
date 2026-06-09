@@ -20,8 +20,9 @@ export function imageWallpaperValue(url: string): WallpaperValue {
   return `image:${url}`;
 }
 
-// 壁纸专用图片的存放目录前缀，用于和日记/相册图片隔离
-export const WALLPAPER_DIR = "/uploads/wallpapers/";
+// 壁纸专用图片的 URL 前缀（文件名前缀），用于和日记/相册图片隔离。
+// 注意：上传服务路由是扁平的，文件必须直接放在 public/uploads/ 下，靠文件名前缀区分。
+export const WALLPAPER_URL_PREFIX = "/uploads/wallpaper-";
 
 export function getWallpaperImageUrl(value: string | null | undefined) {
   if (!value) return null;
