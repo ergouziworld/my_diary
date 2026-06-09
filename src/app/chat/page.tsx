@@ -81,7 +81,7 @@ export default function Page() {
         description="这里是长期记忆问答入口，会检索你的相关日记作为上下文交给 AI，再返回可操作建议。"
       />
 
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3">
         <button
           onClick={handleReindex}
           disabled={indexing}
@@ -97,7 +97,7 @@ export default function Page() {
       <Panel title="长期记忆问答" subtitle="先提问，再由服务端调用配置的 AI 提供商。">
         <div className="space-y-4">
           <textarea
-            className="min-h-36 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
+            className="min-h-36 w-full rounded-2xl border border-white/10 bg-slate-950/55 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
             placeholder="输入你的问题，例如：我最近为什么焦虑？"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
@@ -125,7 +125,7 @@ export default function Page() {
               <button
                 key={item}
                 onClick={() => setQuestion(item)}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-white"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-left text-sm text-white"
               >
                 {item}
               </button>

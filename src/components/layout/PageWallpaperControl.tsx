@@ -165,7 +165,7 @@ export function PageWallpaperControl() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 transition hover:border-white/25"
+              className="shrink-0 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-xs text-slate-300 transition hover:border-white/25"
             >
               关闭
             </button>
@@ -233,7 +233,7 @@ export function PageWallpaperControl() {
                   type="button"
                   onClick={() => void apply(wallpaper.key)}
                   className={`rounded-xl border p-2 text-left transition ${
-                    active ? "border-accent-500 bg-accent-500/15" : "border-white/10 bg-white/5 hover:border-white/25"
+                    active ? "border-accent-500 bg-accent-500/15" : "border-white/10 bg-slate-950/55 hover:border-white/25"
                   }`}
                 >
                   <span className="block h-12 rounded-lg border border-white/10" style={{ background: wallpaper.preview }} />
@@ -246,7 +246,7 @@ export function PageWallpaperControl() {
           <button
             type="button"
             onClick={() => void apply(null)}
-            className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300 transition hover:border-white/25"
+            className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-xs text-slate-300 transition hover:border-white/25"
           >
             恢复默认壁纸
           </button>

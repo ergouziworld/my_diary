@@ -26,7 +26,7 @@ export default function Page() {
   return (
     <div className="space-y-6">
       <SectionHeader title="情绪" description="AI 读懂你的感受，不只是打分。" />
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-slate-950/55" />}>
         <MoodContent />
       </Suspense>
     </div>
@@ -91,7 +91,7 @@ async function MoodContent() {
 
   if (!emotions.length) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
+      <div className="rounded-3xl border border-white/10 bg-slate-950/55 p-8 text-center">
         <p className="text-slate-400">还没有情绪记录。先去首页写一条日记吧。</p>
       </div>
     );
@@ -148,7 +148,7 @@ function EmotionCard({ emotion }: { emotion: EmotionItem }) {
 
       {/* 原文 */}
       {emotion.rawContent && (
-        <p className="rounded-xl border border-white/5 bg-white/5 px-4 py-3 text-sm leading-relaxed text-slate-400 whitespace-pre-wrap line-clamp-4">
+        <p className="rounded-xl border border-white/5 bg-slate-950/55 px-4 py-3 text-sm leading-relaxed text-slate-400 whitespace-pre-wrap line-clamp-4">
           {emotion.rawContent}
         </p>
       )}
@@ -179,7 +179,7 @@ function EmotionCard({ emotion }: { emotion: EmotionItem }) {
 
       {/* 换个角度 + 建议 */}
       {(emotion.reframe || emotion.suggestion) && (
-        <div className="space-y-2 rounded-2xl border border-white/5 bg-white/5 p-4">
+        <div className="space-y-2 rounded-2xl border border-white/5 bg-slate-950/55 p-4">
           {emotion.reframe && (
             <p className="text-sm text-slate-300">
               <span className="font-medium text-accent-500">换个角度 · </span>

@@ -7,7 +7,7 @@ export function AppSidebar() {
       <div className="mb-6 text-lg font-semibold text-white">My Diary</div>
       <nav className="space-y-2">
         {sidebarLinks.map((item) => (
-          <Link key={item.href} href={item.href} className="block rounded-lg px-3 py-2 hover:bg-white/5">
+          <Link key={item.href} href={item.href} className="block rounded-lg px-3 py-2 hover:bg-slate-950/55">
             {item.label}
           </Link>
         ))}

@@ -94,7 +94,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
   return (
     <div className="space-y-5">
       {/* 时间范围切换 */}
-      <div className="flex gap-1 rounded-2xl border border-white/10 bg-white/5 p-1 w-fit">
+      <div className="flex gap-1 rounded-2xl border border-white/10 bg-slate-950/55 p-1 w-fit">
         {PERIODS.map((p) => (
           <button
             key={p.key}
@@ -124,7 +124,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
           <p className="text-xs text-slate-400">收入</p>
           <p className="mt-1 text-xl font-semibold text-emerald-300">{fmt(view.totalIncome)}</p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
           <p className="text-xs text-slate-400">结余</p>
           <p className={`mt-1 text-xl font-semibold ${net >= 0 ? "text-emerald-300" : "text-rose-300"}`}>
             {net >= 0 ? "" : "-"}{fmt(Math.abs(net))}
@@ -140,7 +140,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
 
       {/* 分类占比 */}
       {view.categories.length > 0 && (
-        <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
+        <section className="rounded-3xl border border-white/10 bg-slate-950/55 p-5">
           <h3 className="mb-4 text-base font-semibold text-white">支出分类</h3>
           <div className="space-y-3">
             {view.categories.map((cat, i) => (
@@ -149,7 +149,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
                   <span className="text-slate-300">{cat.name}</span>
                   <span className="text-slate-400">{fmt(cat.amount)} · {Math.round(cat.pct * 100)}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-950/55">
                   <div
                     className={`h-full rounded-full ${CATEGORY_COLORS[i % CATEGORY_COLORS.length]}`}
                     style={{ width: `${Math.max(2, cat.pct * 100)}%` }}
@@ -163,7 +163,7 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
 
       {/* 趋势 */}
       {view.trend.length > 0 && (
-        <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
+        <section className="rounded-3xl border border-white/10 bg-slate-950/55 p-5">
           <h3 className="mb-4 text-base font-semibold text-white">
             支出趋势（{period === "all" ? "按月" : "按天"}）
           </h3>
@@ -185,12 +185,12 @@ export function FinanceDashboard({ items }: { items: FinanceEntry[] }) {
       )}
 
       {/* 明细 */}
-      <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
+      <section className="rounded-3xl border border-white/10 bg-slate-950/55 p-5">
         <h3 className="mb-4 text-base font-semibold text-white">收支明细</h3>
         <div className="space-y-3">
           {view.inScope.length ? (
             view.inScope.map((item) => (
-              <div key={item.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div key={item.id} className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <h4 className="truncate font-medium text-white">{item.title}</h4>

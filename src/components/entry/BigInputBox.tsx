@@ -70,7 +70,7 @@ export function BigInputBox() {
   return (
     <div className="space-y-4">
       <textarea
-        className="min-h-44 w-full rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
+        className="min-h-44 w-full rounded-2xl border border-white/10 bg-slate-950/55 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
         placeholder="今天发生了什么？"
         value={content}
         onChange={(event) => setContent(event.target.value)}
@@ -88,7 +88,7 @@ export function BigInputBox() {
         <div className="text-sm text-slate-400">{status}</div>
       </div>
       {result ? (
-        <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+        <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-950/55 p-4 text-sm text-slate-200">
           <div>摘要：{result.summary}</div>
           <div>标签：{result.tags.join("、") || "无"}</div>
           <div>情绪：{result.emotions.map((item) => item.name).join("、") || "无"}</div>

@@ -11,7 +11,7 @@ export default function Page() {
         <p className="mt-1 text-slate-400">管理 AI 提供商、存储、同步和个人偏好。</p>
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div className="rounded-3xl border border-white/10 bg-slate-950/55 p-5">
         <h2 className="text-sm font-medium text-slate-300">皮肤</h2>
         <p className="mt-1 text-xs text-slate-500">切换全站配色，立即生效。</p>
         <div className="mt-4">
@@ -19,7 +19,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+      <div className="rounded-3xl border border-white/10 bg-slate-950/55 p-5">
         <h2 className="text-sm font-medium text-slate-300">账号</h2>
         <div className="mt-4">
           <button

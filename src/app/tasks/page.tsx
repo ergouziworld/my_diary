@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <div className="space-y-6">
       <SectionHeader title="任务" description="AI 从日记中提取的任务，可直接更改状态。" />
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-slate-950/55" />}>
         <TaskBoard />
       </Suspense>
     </div>
@@ -33,7 +33,7 @@ const PRIORITY_STYLES: Record<TaskRecord["priority"], { pill: string; dot: strin
     label: "中",
   },
   low: {
-    pill: "border-white/10 bg-white/5 text-slate-400",
+    pill: "border-white/10 bg-slate-950/55 text-slate-400",
     dot: "bg-slate-500",
     label: "低",
   },
@@ -69,7 +69,7 @@ async function TaskBoard() {
 
       {/* 分组列表 */}
       {total === 0 ? (
-        <p className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center text-sm text-slate-400">
+        <p className="rounded-2xl border border-white/10 bg-slate-950/55 p-8 text-center text-sm text-slate-400">
           暂无任务，去写日记让 AI 帮你提取吧。
         </p>
       ) : (
@@ -103,7 +103,7 @@ async function TaskBoard() {
 function TaskCard({ task }: { task: TaskRecord }) {
   const p = PRIORITY_STYLES[task.priority];
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/[0.07]">
+    <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/55 p-4 transition-colors hover:bg-white/[0.07]">
       {/* 优先级色点 */}
       <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${p.dot}`} />
 
@@ -130,7 +130,7 @@ function TaskCard({ task }: { task: TaskRecord }) {
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
   const valueClass = accent === "emerald" ? "text-emerald-300" : "text-white";
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
       <p className="text-xs uppercase tracking-widest text-slate-400">{label}</p>
       <p className={`mt-1 text-2xl font-semibold ${valueClass}`}>{value}</p>
     </div>

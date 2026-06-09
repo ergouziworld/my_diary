@@ -51,7 +51,7 @@ export default async function Page() {
       {items.length ? (
         <FinanceDashboard items={items} />
       ) : (
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
+        <div className="rounded-3xl border border-white/10 bg-slate-950/55 p-8 text-center">
           <p className="text-slate-400">暂无收支记录。在日记中提到花钱或收入后会自动提取。</p>
         </div>
       )}

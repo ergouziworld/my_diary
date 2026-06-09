@@ -47,7 +47,7 @@ export default function RecordPage() {
           <Link
             key={m.href}
             href={m.href}
-            className={`group rounded-3xl border bg-white/5 p-6 transition ${m.accent}`}
+            className={`group rounded-3xl border bg-slate-950/55 p-6 transition ${m.accent}`}
           >
             <span className={`text-3xl leading-none ${m.iconColor}`}>{m.icon}</span>
             <h2 className="mt-4 text-lg font-semibold text-white">{m.label}</h2>
