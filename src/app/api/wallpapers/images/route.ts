@@ -3,11 +3,11 @@ import { unlink } from "fs/promises";
 import path from "path";
 import { getUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { imageWallpaperValue, WALLPAPER_DIR } from "@/lib/wallpapers";
+import { imageWallpaperValue, WALLPAPER_URL_PREFIX } from "@/lib/wallpapers";
 
 export const runtime = "nodejs";
 
-// 只返回壁纸专用图（按 /uploads/wallpapers/ 前缀隔离），不含日记/相册图片
+// 只返回壁纸专用图（按 /uploads/wallpaper- 文件名前缀隔离），不含日记/相册图片
 export async function GET() {
   let userId: string;
   try {
@@ -17,7 +17,7 @@ export async function GET() {
   }
 
   const attachments = await prisma.attachment.findMany({
-    where: { userId, fileUrl: { startsWith: WALLPAPER_DIR } },
+    where: { userId, fileUrl: { startsWith: WALLPAPER_URL_PREFIX } },
     orderBy: { createdAt: "desc" },
     take: 80,
     select: { id: true, fileUrl: true, size: true, createdAt: true }
@@ -47,7 +47,7 @@ export async function DELETE(req: Request) {
   if (!id) return NextResponse.json({ ok: false, error: "缺少 id" }, { status: 400 });
 
   const attachment = await prisma.attachment.findFirst({
-    where: { id, userId, fileUrl: { startsWith: WALLPAPER_DIR } },
+    where: { id, userId, fileUrl: { startsWith: WALLPAPER_URL_PREFIX } },
     select: { id: true, fileUrl: true }
   });
   if (!attachment) {
@@ -60,11 +60,11 @@ export async function DELETE(req: Request) {
   });
   await prisma.attachment.delete({ where: { id: attachment.id } });
 
-  // 删磁盘文件（失败不影响接口成功——记录已删）
+  // 删磁盘文件（失败不影响接口成功——记录已删）。文件在扁平的 public/uploads/ 下
   try {
-    const fileName = attachment.fileUrl.slice(WALLPAPER_DIR.length);
+    const fileName = attachment.fileUrl.slice("/uploads/".length);
     if (fileName && !fileName.includes("..") && !fileName.includes("/")) {
-      await unlink(path.join(process.cwd(), "public", "uploads", "wallpapers", fileName));
+      await unlink(path.join(process.cwd(), "public", "uploads", fileName));
     }
   } catch {
     /* 文件可能已不存在，忽略 */

@@ -39,27 +39,38 @@ body {
 }
 
 /*
- * 壁纸放在固定视口大小的图层上，钉死、不随滚动移动，也不被页面总高度拉伸放大。
- * 用 position:fixed 元素而非 background-attachment:fixed（后者在移动端会撕裂）。
- * 高度用 100lvh（大视口高度，恒定值）而非 inset:0——后者会随移动端地址栏伸缩而变，
- * 导致 contain 居中的图重新定位“换位置”。再向四周各扩 2px 盖住回弹露边。
- * 尺寸由各层自带：图片用 contain 完整显示原图，渐变预设自动铺满。
+ * 壁纸背板：由 WallpaperProvider 渲染两层做淡入淡出（crossfade），切页不再生硬闪烁。
+ * 钉在视口、不随滚动移动；高度用 100lvh（恒定大视口高度）而非 inset:0，
+ * 避免随移动端地址栏伸缩而 resize 导致居中图“换位置”；四周外扩 2px 盖住回弹露边。
  */
-body::before {
-  content: "";
+.wp-backdrop {
   position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.wp-layer {
+  position: absolute;
   top: -2px;
   left: -2px;
   width: calc(100vw + 4px);
   height: 100vh;
   height: calc(100lvh + 4px);
-  z-index: -1;
-  background: var(--wallpaper-overlay), var(--wallpaper-background), #020617;
   background-repeat: no-repeat;
   background-position: center;
-  /* 提升为独立合成层，与内容重绘隔离，减少滚动/切页时的闪烁 */
+  /* 各层尺寸由 background 自带：图片 contain 显示原图、渐变自动铺满 */
   transform: translateZ(0);
-  pointer-events: none;
+}
+
+/* 新壁纸层淡入覆盖旧层 */
+.wp-layer-enter {
+  animation: wpFadeIn 320ms ease forwards;
+}
+
+@keyframes wpFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @layer utilities {
