@@ -12,7 +12,8 @@ export type WallpaperOption = {
 };
 
 function cssUrl(url: string) {
-  return `url(${JSON.stringify(url)}) center / cover no-repeat`;
+  // contain：完整显示原图，不裁剪/不过度放大；空白处由 overlay + 底色填充
+  return `url(${JSON.stringify(url)}) center / contain no-repeat`;
 }
 
 export function imageWallpaperValue(url: string): WallpaperValue {
