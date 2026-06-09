@@ -30,6 +30,8 @@
 html, body {
   height: 100%;
   overflow-x: hidden;
+  /* 关掉上下“橡皮筋”回弹——它会在滚到顶/底时带着固定壁纸抖动闪烁 */
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -37,18 +39,28 @@ body {
 }
 
 /*
- * 壁纸放在固定视口大小的图层上，避免随页面总高度被 cover 拉伸放大（之前“过度放大”的原因）。
- * 用 position:fixed 的元素而非 background-attachment:fixed —— 后者在移动端会撕裂。
+ * 壁纸放在固定视口大小的图层上，钉死、不随滚动移动，也不被页面总高度拉伸放大。
+ * 用 position:fixed 元素而非 background-attachment:fixed（后者在移动端会撕裂）。
+ * 高度用 100lvh（大视口高度，恒定值）而非 inset:0——后者会随移动端地址栏伸缩而变，
+ * 导致 contain 居中的图重新定位“换位置”。再向四周各扩 2px 盖住回弹露边。
  * 尺寸由各层自带：图片用 contain 完整显示原图，渐变预设自动铺满。
  */
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  top: -2px;
+  left: -2px;
+  width: calc(100vw + 4px);
+  height: 100vh;
+  height: calc(100lvh + 4px);
   z-index: -1;
   background: var(--wallpaper-overlay), var(--wallpaper-background), #020617;
   background-repeat: no-repeat;
   background-position: center;
+  /* 提升为独立合成层，减少滚动时的重绘闪烁 */
+  transform: translateZ(0);
+  will-change: transform;
+  pointer-events: none;
 }
 
 @layer utilities {
