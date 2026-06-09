@@ -54,7 +54,7 @@ export function SmallAiBox() {
   }
 
   return (
-    <div className="space-y-4 rounded-[2rem] border border-accent-500/20 bg-[radial-gradient(circle_at_top,_rgb(var(--accent-500)_/_0.14),_transparent_42%),linear-gradient(180deg,_rgba(2,6,23,0.95),_rgba(15,23,42,0.88))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+    <div className="space-y-4 rounded-[2rem] border border-accent-500/20 bg-[radial-gradient(circle_at_top,_rgb(var(--accent-500)_/_0.14),_transparent_42%),linear-gradient(180deg,_rgba(2,6,23,0.58),_rgba(15,23,42,0.5))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-accent-500/25 bg-accent-500/10 px-3 py-1 text-[11px] font-medium text-accent-300">
