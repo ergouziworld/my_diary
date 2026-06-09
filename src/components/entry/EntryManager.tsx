@@ -113,7 +113,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
 
   if (!items.length) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
+      <div className="rounded-3xl border border-white/10 bg-slate-950/55 p-8 text-center">
         <p className="text-slate-400">还没有日记。先去首页写一条吧。</p>
       </div>
     );
@@ -122,7 +122,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
   return (
     <div className="space-y-4">
       {/* 查找栏 */}
-      <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+      <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-950/55 p-3">
         <div className="flex gap-1 rounded-xl bg-slate-950/50 p-1">
           {MODES.map((m) => (
             <button
@@ -144,7 +144,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
               type="date"
               value={dateValue}
               onChange={(e) => setDateValue(e.target.value)}
-              className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none focus:border-accent-500/50 [color-scheme:dark]"
+              className="flex-1 rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-sm text-white outline-none focus:border-accent-500/50 [color-scheme:dark]"
             />
             {dateValue && (
               <button
@@ -164,7 +164,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="输入关键词，匹配正文、摘要、标签、情绪"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-accent-500/50"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-accent-500/50"
           />
         )}
 
@@ -177,7 +177,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
                 onChange={(e) => setAiQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && runAiSearch()}
                 placeholder="用自然语言描述你想找的，如「那次很焦虑的事」"
-                className="flex-1 rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-accent-500/50"
+                className="flex-1 rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600 focus:border-accent-500/50"
               />
               <button
                 type="button"
@@ -214,7 +214,7 @@ export function EntryManager({ items }: { items: ManageItem[] }) {
       {filtered.length ? (
         filtered.map((item) => <EntryCard key={item.id} item={item} />)
       ) : (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-6 text-center text-sm text-slate-400">
           {mode === "ai" && !aiResults ? "试试用一句话描述你想找的日记。" : "没有匹配的记录。"}
         </div>
       )}
@@ -271,7 +271,7 @@ function EntryCard({ item }: { item: ManageItem }) {
   }
 
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+    <article className="rounded-2xl border border-white/10 bg-slate-950/55 p-4 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <p className="text-xs text-slate-500">{item.meta}</p>
         <div className="flex items-center gap-2">
@@ -291,7 +291,7 @@ function EntryCard({ item }: { item: ManageItem }) {
       {editing ? (
         <div className="space-y-3">
           <textarea
-            className="min-h-40 w-full resize-y rounded-xl border border-white/10 bg-slate-950/80 p-3 text-sm leading-relaxed text-white outline-none focus:border-accent-500/50"
+            className="min-h-40 w-full resize-y rounded-xl border border-white/10 bg-slate-950/55 p-3 text-sm leading-relaxed text-white outline-none focus:border-accent-500/50"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             autoFocus

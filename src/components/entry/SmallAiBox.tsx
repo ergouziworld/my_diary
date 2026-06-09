@@ -63,7 +63,7 @@ export function SmallAiBox() {
           <h3 className="mt-3 text-xl font-semibold text-white">独立问答区</h3>
           <p className="mt-1 text-sm leading-6 text-slate-400">只回答问题，不读取日记数据，也不保存上下文。</p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-right">
+        <div className="rounded-2xl border border-white/10 bg-slate-950/55 px-3 py-2 text-right">
           <div className="text-[11px] uppercase tracking-[0.2em] text-slate-500">limit</div>
           <div className="text-sm font-semibold text-accent-300">100 / 30</div>
         </div>
@@ -78,7 +78,7 @@ export function SmallAiBox() {
               setQuestion(item);
               void handleAsk(item);
             }}
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition hover:border-accent-500/40 hover:bg-accent-500/10"
+            className="rounded-full border border-white/10 bg-slate-950/55 px-3 py-1.5 text-xs text-slate-200 transition hover:border-accent-500/40 hover:bg-accent-500/10"
           >
             {item}
           </button>
@@ -93,7 +93,7 @@ export function SmallAiBox() {
         <textarea
           maxLength={100}
           rows={4}
-          className="w-full resize-none rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
+          className="w-full resize-none rounded-3xl border border-white/10 bg-slate-950/55 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-accent-500/50"
           placeholder="输入问题，100 字以内"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
@@ -112,7 +112,7 @@ export function SmallAiBox() {
         </button>
       </div>
 
-      <div className="rounded-[1.5rem] border border-white/10 bg-slate-900/70 p-4">
+      <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-4">
         <div className="mb-2 text-xs uppercase tracking-[0.18em] text-slate-500">answer</div>
         <div className="inline-block max-w-full rounded-2xl rounded-tl-sm bg-accent-500/15 px-4 py-3 text-sm leading-6 text-slate-100">
           {answer}

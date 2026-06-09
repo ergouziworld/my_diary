@@ -297,7 +297,7 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
                 <button
                   type="button"
                   onClick={() => setPanelOpen(false)}
-                  className="pointer-events-auto rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-white/70 transition hover:bg-white/10 hover:text-white"
+                  className="pointer-events-auto rounded-full border border-white/15 bg-slate-950/55 px-2.5 py-1 text-xs text-white/70 transition hover:bg-white/10 hover:text-white"
                 >
                   关闭
                 </button>
@@ -320,7 +320,7 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
               </div>
 
               <p className="mt-4 text-sm leading-6 text-slate-200">{selected.summary}</p>
-              <p className="mt-3 max-h-28 overflow-hidden rounded-xl border border-white/10 bg-white/5 p-3 text-xs leading-5 text-slate-300">
+              <p className="mt-3 max-h-28 overflow-hidden rounded-xl border border-white/10 bg-slate-950/55 p-3 text-xs leading-5 text-slate-300">
                 {selected.detail}
               </p>
               <p className="mt-3 rounded-xl border border-cyan-200/15 bg-cyan-200/10 p-3 text-xs leading-5 text-cyan-50/80">
@@ -330,7 +330,7 @@ export function MemoryWorld({ data }: MemoryWorldProps) {
               {selected.tags.length ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {selected.tags.map((tag) => (
-                    <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200">
+                    <span key={tag} className="rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-xs text-slate-200">
                       {tag}
                     </span>
                   ))}

@@ -36,7 +36,7 @@ export default async function ManagePage() {
       <Link
         href="/"
         aria-label="返回首页"
-        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300 transition hover:text-white"
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1.5 text-sm text-slate-300 transition hover:text-white"
       >
         <span className="text-base leading-none">←</span> 返回首页
       </Link>

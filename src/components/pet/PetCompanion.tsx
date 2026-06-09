@@ -270,7 +270,7 @@ export function PetCompanion() {
                   ×
                 </button>
               </div>
-              <div className="min-h-[2.5rem] rounded-xl bg-white/5 px-3 py-2 text-sm leading-relaxed text-slate-200">
+              <div className="min-h-[2.5rem] rounded-xl bg-slate-950/55 px-3 py-2 text-sm leading-relaxed text-slate-200">
                 {loading ? "……" : line || "想跟我说点什么？"}
               </div>
               <div className="mt-2 flex gap-2">

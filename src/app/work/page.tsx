@@ -11,7 +11,7 @@ export default function Page() {
   return (
     <div className="space-y-6">
       <SectionHeader title="工作 / 学习" description="读取 workItems 与相关分析结果。" />
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-white/5" />}>
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-3xl bg-slate-950/55" />}>
         <WorkContent />
       </Suspense>
     </div>
@@ -49,7 +49,7 @@ async function WorkContent() {
         <div className="space-y-3">
           {items.length ? (
             items.map((item) => (
-              <div key={`${item.entryId}-${item.title}-${item.projectName ?? "none"}`} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div key={`${item.entryId}-${item.title}-${item.projectName ?? "none"}`} className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="font-medium text-white">{item.title}</h3>

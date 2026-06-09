@@ -36,7 +36,7 @@ export default function RegisterPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5 rounded-2xl border border-white/10 bg-white/5 p-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5 rounded-2xl border border-white/10 bg-slate-950/55 p-6">
         <div>
           <h1 className="text-2xl font-semibold">注册</h1>
           <p className="mt-2 text-sm text-slate-400">创建你的 AI Diary 账号</p>

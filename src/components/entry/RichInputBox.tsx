@@ -169,7 +169,7 @@ export function RichInputBox() {
           {attachments.map((att) => (
             <div
               key={att.id}
-              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-xs text-slate-300"
             >
               {att.type === "image" ? (
                 <img src={att.url} alt="" className="h-7 w-7 rounded-lg object-cover shrink-0" />
@@ -193,7 +193,7 @@ export function RichInputBox() {
       {showLinkInput && (
         <div className="flex gap-2">
           <input
-            className="flex-1 rounded-xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-white outline-none focus:border-accent-500/40"
+            className="flex-1 rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-sm text-white outline-none focus:border-accent-500/40"
             placeholder="粘贴链接..."
             value={linkInput}
             onChange={(e) => setLinkInput(e.target.value)}
@@ -210,7 +210,7 @@ export function RichInputBox() {
           <button
             type="button"
             onClick={() => setShowLinkInput(false)}
-            className="rounded-xl bg-white/5 px-3 py-2 text-xs text-slate-400 hover:bg-white/10 transition"
+            className="rounded-xl bg-slate-950/55 px-3 py-2 text-xs text-slate-400 hover:bg-white/10 transition"
           >
             取消
           </button>
@@ -240,7 +240,7 @@ export function RichInputBox() {
             disabled={uploading}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => imageInputRef.current?.click()}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-accent-500/30 hover:bg-accent-500/10 disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-base leading-none transition hover:border-accent-500/30 hover:bg-accent-500/10 disabled:opacity-40"
           >
             📷
           </button>
@@ -250,7 +250,7 @@ export function RichInputBox() {
             disabled={uploading}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => docInputRef.current?.click()}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-accent-500/30 hover:bg-accent-500/10 disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-base leading-none transition hover:border-accent-500/30 hover:bg-accent-500/10 disabled:opacity-40"
           >
             📎
           </button>
@@ -259,7 +259,7 @@ export function RichInputBox() {
             title="添加链接"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setShowLinkInput((v) => !v)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-base leading-none transition hover:border-accent-500/30 hover:bg-accent-500/10"
+            className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-base leading-none transition hover:border-accent-500/30 hover:bg-accent-500/10"
           >
             🔗
           </button>

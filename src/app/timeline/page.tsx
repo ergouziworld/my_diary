@@ -30,7 +30,7 @@ async function TimelineList() {
       <div className="space-y-4">
         {entries.length ? (
           entries.map((entry) => (
-            <div key={entry.id} className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 md:grid-cols-[96px_1fr]">
+            <div key={entry.id} className="grid gap-3 rounded-2xl border border-white/10 bg-slate-950/55 p-4 md:grid-cols-[96px_1fr]">
               <div className="text-sm font-medium text-slate-300">
                 {entry.createdAt.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
               </div>

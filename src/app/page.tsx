@@ -20,7 +20,7 @@ export default async function HomePage({
 
   return (
     <div className="space-y-5">
-      <div className="flex gap-1 rounded-2xl border border-white/10 bg-white/5 p-1 w-fit">
+      <div className="flex gap-1 rounded-2xl border border-white/10 bg-slate-950/55 p-1 w-fit">
         <Link
           href="/"
           className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
@@ -86,7 +86,7 @@ function TodayStatus({ entries }: { entries: EntryRecord[] }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm text-slate-300">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-slate-950/55 px-5 py-3.5 text-sm text-slate-300">
       <span>📖 已记录 <b className="font-semibold text-white">{total}</b> 篇</span>
       <span className="text-slate-600">·</span>
       {streak > 0 ? (
@@ -133,7 +133,7 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
       <div className="space-y-4">
         {recentItems.length ? (
           recentItems.map((item) => (
-            <article key={item.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+            <article key={item.id} className="rounded-2xl border border-white/10 bg-slate-950/55 p-4 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs text-slate-500">{item.meta}</p>
                 <DeleteEntryButton entryId={item.id} />
@@ -154,7 +154,7 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
                     <img key={img.id} src={img.fileUrl} alt="" className="h-20 w-20 rounded-xl object-cover" />
                   ))}
                   {item.images.length > 4 && (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-sm text-slate-400">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-slate-950/55 text-sm text-slate-400">
                       +{item.images.length - 4}
                     </div>
                   )}
@@ -185,7 +185,7 @@ function TimelineView({ entries }: { entries: EntryRecord[] }) {
             const raw = entry.entryAnalysis?.rawAiResult as { timelineTitle?: string } | null | undefined;
             const title = raw?.timelineTitle ?? entry.entryAnalysis?.summary ?? "未生成摘要";
             return (
-              <div key={entry.id} className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 md:grid-cols-[96px_1fr]">
+              <div key={entry.id} className="grid gap-3 rounded-2xl border border-white/10 bg-slate-950/55 p-4 md:grid-cols-[96px_1fr]">
                 <div className="text-sm font-medium text-slate-300">
                   {entry.createdAt.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}
                 </div>

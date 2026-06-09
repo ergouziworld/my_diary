@@ -41,7 +41,7 @@ export function ThemeSwitcher() {
             type="button"
             onClick={() => apply(t.key)}
             className={`rounded-2xl border p-4 text-left transition ${
-              active ? "border-accent-500 bg-accent-500/10" : "border-white/10 bg-white/5 hover:border-white/20"
+              active ? "border-accent-500 bg-accent-500/10" : "border-white/10 bg-slate-950/55 hover:border-white/20"
             }`}
           >
             <div className="mb-3 flex gap-1.5">
