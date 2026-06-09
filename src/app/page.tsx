@@ -49,7 +49,7 @@ export default async function HomePage({
 
           <Link
             href="/world"
-            className="group relative block overflow-hidden rounded-[2rem] border border-accent-500/25 bg-[radial-gradient(ellipse_at_top_right,_rgb(var(--accent-500)_/_0.18),_transparent_60%),linear-gradient(135deg,_rgba(15,23,42,0.95),_rgba(2,6,23,0.95))] p-6 shadow-[0_0_50px_rgb(var(--accent-500)_/_0.08)] transition hover:border-accent-500/45"
+            className="group relative block overflow-hidden rounded-[2rem] border border-accent-500/25 bg-[radial-gradient(ellipse_at_top_right,_rgb(var(--accent-500)_/_0.18),_transparent_60%),linear-gradient(135deg,_rgba(15,23,42,0.55),_rgba(2,6,23,0.55))] p-6 shadow-[0_0_50px_rgb(var(--accent-500)_/_0.08)] transition hover:border-accent-500/45"
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-400/80">3D · Memory World</p>
             <h3 className="mt-2 text-xl font-semibold text-white">进入记忆世界 →</h3>
