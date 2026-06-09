@@ -57,9 +57,8 @@ body::before {
   background: var(--wallpaper-overlay), var(--wallpaper-background), #020617;
   background-repeat: no-repeat;
   background-position: center;
-  /* 提升为独立合成层，减少滚动时的重绘闪烁 */
+  /* 提升为独立合成层，与内容重绘隔离，减少滚动/切页时的闪烁 */
   transform: translateZ(0);
-  will-change: transform;
   pointer-events: none;
 }
 
