@@ -20,6 +20,9 @@ export function imageWallpaperValue(url: string): WallpaperValue {
   return `image:${url}`;
 }
 
+// 壁纸专用图片的存放目录前缀，用于和日记/相册图片隔离
+export const WALLPAPER_DIR = "/uploads/wallpapers/";
+
 export function getWallpaperImageUrl(value: string | null | undefined) {
   if (!value) return null;
   if (value.startsWith("image:")) return value.slice("image:".length).trim() || null;
