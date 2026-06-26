@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* 主题强调色（皮肤切换：改这组变量，全站 accent-* 跟着变） */
-/* 热血羽毛球皮肤：玫红（球衣红）+ 紫罗兰（球裤紫），取自插画 */
+
 :root, [data-theme="hot"] {
   --accent-200: 254 205 211;
   --accent-300: 253 164 175;
@@ -76,6 +76,11 @@ body {
 @layer utilities {
   .overflow-anchor-none {
     overflow-anchor: none;
+  }
+  /* 密码框视觉遮罩：用 text 类型避免浏览器密码管理弹窗，同时保留小圆点外观 */
+  .input-mask {
+    -webkit-text-security: disc;
+    text-security: disc;
   }
 }
 
