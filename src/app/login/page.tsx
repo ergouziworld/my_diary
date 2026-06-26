@@ -58,6 +58,9 @@ export default function LoginPage() {
             className="input-mask w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
             type="text"
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
