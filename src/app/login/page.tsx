@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,7 +16,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     const result = await signIn("credentials", {
-      email,
+      username,
       password,
       callbackUrl: "/",
       redirect: false
@@ -25,7 +25,7 @@ export default function LoginPage() {
     setIsSubmitting(false);
 
     if (result?.error) {
-      setError("邮箱或密码不正确");
+      setError("用户名或密码不正确");
       return;
     }
 
@@ -41,12 +41,13 @@ export default function LoginPage() {
         </div>
 
         <label className="block space-y-2 text-sm">
-          <span className="text-slate-300">邮箱</span>
+          <span className="text-slate-300">用户名</span>
           <input
             className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
             required
           />
         </label>
@@ -56,6 +57,7 @@ export default function LoginPage() {
           <input
             className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
             type="password"
+            autoComplete="off"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
