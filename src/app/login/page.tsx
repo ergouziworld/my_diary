@@ -55,10 +55,9 @@ export default function LoginPage() {
         <label className="block space-y-2 text-sm">
           <span className="text-slate-300">密码</span>
           <input
-            className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
-            type="password"
-            autoComplete="new-password"
-            name="new-password"
+            className="input-mask w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
+            type="text"
+            autoComplete="off"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
