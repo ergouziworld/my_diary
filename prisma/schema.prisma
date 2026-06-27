@@ -88,10 +88,22 @@ enum AnalysisProvider {
   mock
 }
 
+model SmsCode {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String?
   email     String?  @unique
+  phone     String?  @unique
   password  String?
   avatarUrl String?
   timezone   String   @default("Asia/Shanghai")

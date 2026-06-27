@@ -21,26 +21,51 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const username = (credentials?.username ?? credentials?.email)?.trim().toLowerCase();
         const password = credentials?.password;
-
-        console.log("[auth] username:", JSON.stringify(username), "password length:", password?.length, "password:", JSON.stringify(password));
-
         if (!username || !password) return null;
 
         const user = await prisma.user.findUnique({ where: { email: username } });
-        console.log("[auth] user found:", !!user);
         if (!user?.password) return null;
 
         const isValid = await bcrypt.compare(password, user.password);
-        console.log("[auth] isValid:", isValid);
         if (!isValid) return null;
 
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email
-        };
+        return { id: user.id, name: user.name, email: user.email };
       }
-    })
+    }),
+    CredentialsProvider({
+      id: "sms",
+      name: "Phone and SMS Code",
+      credentials: {
+        phone: { label: "Phone", type: "text" },
+        code: { label: "Code", type: "text" },
+      },
+      async authorize(credentials) {
+        const phone = credentials?.phone?.trim();
+        const code = credentials?.code?.trim();
+        if (!phone || !code) return null;
+
+        const smsCode = await prisma.smsCode.findFirst({
+          where: {
+            phone,
+            code,
+            used: false,
+            expiresAt: { gt: new Date() },
+          },
+        });
+        if (!smsCode) return null;
+
+        await prisma.smsCode.update({ where: { id: smsCode.id }, data: { used: true } });
+
+        let user = await prisma.user.findUnique({ where: { phone } });
+        if (!user) {
+          user = await prisma.user.create({
+            data: { phone, name: `用户${phone.slice(-4)}` },
+          });
+        }
+
+        return { id: user.id, name: user.name, email: user.email ?? phone };
+      }
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
