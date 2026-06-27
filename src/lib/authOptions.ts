@@ -12,21 +12,26 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
-      name: "Email and password",
+      name: "Username and password",
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
+        email: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        const email = credentials?.email?.trim().toLowerCase();
+        const username = (credentials?.username ?? credentials?.email)?.trim().toLowerCase();
         const password = credentials?.password;
 
-        if (!email || !password) return null;
+        console.log("[auth] username:", JSON.stringify(username), "password length:", password?.length, "password:", JSON.stringify(password));
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        if (!username || !password) return null;
+
+        const user = await prisma.user.findUnique({ where: { email: username } });
+        console.log("[auth] user found:", !!user);
         if (!user?.password) return null;
 
         const isValid = await bcrypt.compare(password, user.password);
+        console.log("[auth] isValid:", isValid);
         if (!isValid) return null;
 
         return {
