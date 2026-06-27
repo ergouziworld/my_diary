@@ -7,7 +7,7 @@ import { FormEvent, useState } from "react";
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,7 +20,7 @@ export default function RegisterPage() {
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, username, password })
     });
 
     setIsSubmitting(false);
@@ -52,12 +52,13 @@ export default function RegisterPage() {
         </label>
 
         <label className="block space-y-2 text-sm">
-          <span className="text-slate-300">邮箱</span>
+          <span className="text-slate-300">用户名</span>
           <input
             className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            type="text"
+            autoComplete="username"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
             required
           />
         </label>
@@ -65,8 +66,12 @@ export default function RegisterPage() {
         <label className="block space-y-2 text-sm">
           <span className="text-slate-300">密码</span>
           <input
-            className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
-            type="password"
+            className="input-mask w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             minLength={6}
