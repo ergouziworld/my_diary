@@ -155,8 +155,7 @@ export function PageWallpaperControl() {
         壁纸
       </button>
 
-      {open && (
-        <div className="mt-2.5 max-h-[min(76vh,640px)] w-[min(23rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-white/12 bg-slate-950/95 p-3 shadow-[0_18px_48px_rgb(0_0_0/0.4)] backdrop-blur-lg">
+      <div className={`mt-2.5 max-h-[min(76vh,640px)] w-[min(23rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-white/12 bg-slate-950/95 p-3 shadow-[0_18px_48px_rgb(0_0_0/0.4)] backdrop-blur-lg transition-all duration-200 ${open ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none select-none"}`}>
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="text-sm font-semibold text-white">当前页面壁纸</div>
@@ -253,7 +252,6 @@ export function PageWallpaperControl() {
 
           {status_ && <p className="mt-2 text-center text-xs text-slate-300">{status_}</p>}
         </div>
-      )}
     </div>
   );
 }
