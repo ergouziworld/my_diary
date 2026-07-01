@@ -12,13 +12,26 @@ import {
 type WallpaperMap = Record<string, WallpaperValue>;
 type Layer = { id: number; background: string; overlay: string };
 
-// 模块级缓存：避免每次切页都重新请求接口（那会造成切页卡顿 + 背景跳变闪烁）
+const LS_MAP_KEY = "wp-map";
+const LS_UID_KEY = "wp-uid";
+
 let cachedMap: WallpaperMap | null = null;
 let cachedUserId: string | undefined;
 let lastBackground = "";
 let lastOverlay = "";
 let layerSeq = 0;
 const preloadedImages = new Set<string>();
+
+// 模块加载时从 localStorage 恢复缓存，让首屏立刻拿到上次的壁纸
+if (typeof window !== "undefined" && !cachedMap) {
+  try {
+    const stored = localStorage.getItem(LS_MAP_KEY);
+    if (stored) {
+      cachedMap = JSON.parse(stored) as WallpaperMap;
+      cachedUserId = localStorage.getItem(LS_UID_KEY) ?? undefined;
+    }
+  } catch {}
+}
 
 async function fetchWallpaperMap(): Promise<WallpaperMap> {
   try {
@@ -39,7 +52,6 @@ function preloadImage(url: string) {
   image.src = url;
 }
 
-// 预加载映射里所有图片壁纸，让切页时背景图已在缓存中，避免切换闪烁
 function preloadAllImages(map: WallpaperMap) {
   for (const value of Object.values(map)) {
     const wallpaper = getWallpaper(value);
@@ -47,21 +59,37 @@ function preloadAllImages(map: WallpaperMap) {
   }
 }
 
+function saveToLocalStorage(map: WallpaperMap, uid: string | undefined) {
+  try {
+    localStorage.setItem(LS_MAP_KEY, JSON.stringify(map));
+    localStorage.setItem(LS_UID_KEY, uid ?? "");
+  } catch {}
+}
+
 export function WallpaperProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
 
-  // 用两层背景做淡入淡出：切壁纸时新层淡入覆盖旧层，避免生硬闪烁
-  const [layers, setLayers] = useState<Layer[]>(() =>
-    lastBackground ? [{ id: ++layerSeq, background: lastBackground, overlay: lastOverlay }] : []
-  );
+  const [layers, setLayers] = useState<Layer[]>(() => {
+    // 优先用模块缓存（页内导航场景）
+    if (lastBackground) {
+      return [{ id: ++layerSeq, background: lastBackground, overlay: lastOverlay }];
+    }
+    // 其次用 localStorage 预填充（刷新 / 首次打开）
+    if (cachedMap && typeof window !== "undefined") {
+      const wallpaper = getWallpaper(cachedMap[window.location.pathname] ?? DEFAULT_WALLPAPER);
+      lastBackground = wallpaper.background;
+      lastOverlay = wallpaper.overlay;
+      return [{ id: ++layerSeq, background: wallpaper.background, overlay: wallpaper.overlay }];
+    }
+    return [];
+  });
 
   const applyFromMap = useCallback((path: string, map: WallpaperMap) => {
     const wallpaper = getWallpaper(map[path] ?? DEFAULT_WALLPAPER);
     if (wallpaper.imageUrl) preloadImage(wallpaper.imageUrl);
 
-    // 壁纸没变就不动，避免无谓重绘
     if (wallpaper.background === lastBackground && wallpaper.overlay === lastOverlay) return;
     lastBackground = wallpaper.background;
     lastOverlay = wallpaper.overlay;
@@ -72,7 +100,6 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  // 切页：命中缓存瞬时应用；缓存缺失或换用户才拉一次
   useEffect(() => {
     if (status !== "authenticated") return;
 
@@ -86,15 +113,13 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
       if (cancelled) return;
       cachedMap = map;
       cachedUserId = userId;
+      saveToLocalStorage(map, userId);
       applyFromMap(pathname, map);
       preloadAllImages(map);
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [pathname, status, userId, applyFromMap]);
 
-  // 用户在悬浮窗里改了壁纸：刷新缓存并重应用当前页
   useEffect(() => {
     if (status !== "authenticated") return;
 
@@ -102,6 +127,7 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
       void fetchWallpaperMap().then((map) => {
         cachedMap = map;
         cachedUserId = userId;
+        saveToLocalStorage(map, userId);
         applyFromMap(pathname, map);
         preloadAllImages(map);
       });
@@ -115,7 +141,6 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
     };
   }, [pathname, status, userId, applyFromMap]);
 
-  // 新层淡入完成后，移除它下面的旧层
   function handleEntered(id: number) {
     setLayers((prev) => (prev.length > 1 ? prev.filter((layer) => layer.id >= id) : prev));
   }
