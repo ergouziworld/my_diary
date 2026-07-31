@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Pill } from "@/components/common/Pill";
+import { Pill } from "@/components/common";
 import { DeleteEntryButton } from "@/components/entry/DeleteEntryButton";
 
 export type ManageItem = {
@@ -326,7 +327,14 @@ function EntryCard({ item }: { item: ManageItem }) {
           {item.images.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {item.images.slice(0, 6).map((img) => (
-                <img key={img.id} src={img.url} alt="" className="h-20 w-20 rounded-xl object-cover" />
+                <Image
+                  key={img.id}
+                  src={img.url}
+                  alt="日记附件图片"
+                  width={80}
+                  height={80}
+                  className="h-20 w-20 rounded-xl object-cover"
+                />
               ))}
             </div>
           )}

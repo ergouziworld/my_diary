@@ -17,7 +17,7 @@ function trimToLimit(text: string, limit: number) {
 
 export function SmallAiBox() {
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("输入一个问题，100 字以内。");
+  const [answer, setAnswer] = useState("有烦恼或拿不定主意的事，都可以写在这里。");
   const [loading, setLoading] = useState(false);
 
   async function handleAsk(nextQuestion?: string) {
@@ -29,7 +29,7 @@ export function SmallAiBox() {
     }
 
     setLoading(true);
-    setAnswer("AI 思考中...");
+    setAnswer("让我想一想...");
 
     try {
       const response = await fetch("/api/smallai", {
@@ -54,19 +54,16 @@ export function SmallAiBox() {
   }
 
   return (
-    <div className="space-y-4 rounded-[2rem] border border-accent-500/20 bg-[radial-gradient(circle_at_top,_rgb(var(--accent-500)_/_0.14),_transparent_42%),linear-gradient(180deg,_rgba(2,6,23,0.58),_rgba(15,23,42,0.5))] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+    <div className="space-y-4 rounded-[1.4rem] border border-white/10 bg-[#171723]/90 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent-500/25 bg-accent-500/10 px-3 py-1 text-[11px] font-medium text-accent-300">
-            小 AI
+          <div className="inline-flex -rotate-1 items-center gap-2 rounded-md bg-[#f7d774] px-2.5 py-1 text-[11px] font-bold text-[#403713]">
+            团子的建议角
           </div>
-          <h3 className="mt-3 text-xl font-semibold text-white">独立问答区</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-400">只回答问题，不读取日记数据，也不保存上下文。</p>
+          <h3 className="mt-3 text-xl font-bold tracking-[-0.03em] text-white">现在有什么想不通的？</h3>
+          <p className="mt-1 text-sm leading-6 text-slate-400">只聊眼前的问题，不翻看你的日记。</p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-slate-950/55 px-3 py-2 text-right">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-slate-500">limit</div>
-          <div className="text-sm font-semibold text-accent-300">100 / 30</div>
-        </div>
+        <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-slate-500">简短回答</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -87,7 +84,7 @@ export function SmallAiBox() {
 
       <div className="space-y-3">
         <label className="flex items-center justify-between text-xs text-slate-500">
-          <span>问题输入</span>
+          <span>写下问题</span>
           <span>{question.length}/100</span>
         </label>
         <textarea
@@ -101,7 +98,7 @@ export function SmallAiBox() {
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-slate-500">回答自动压缩到 30 字以内。</p>
+        <p className="text-xs text-slate-500">会尽量说得简单、直接。</p>
         <button
           type="button"
           disabled={loading}
@@ -113,7 +110,7 @@ export function SmallAiBox() {
       </div>
 
       <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/55 p-4">
-        <div className="mb-2 text-xs uppercase tracking-[0.18em] text-slate-500">answer</div>
+        <div className="mb-2 text-xs font-medium text-slate-500">团子说</div>
         <div className="inline-block max-w-full rounded-2xl rounded-tl-sm bg-accent-500/15 px-4 py-3 text-sm leading-6 text-slate-100">
           {answer}
         </div>

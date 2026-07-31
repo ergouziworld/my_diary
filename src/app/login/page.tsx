@@ -71,25 +71,35 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5 rounded-2xl border border-white/10 bg-slate-950/55 p-6">
+    <main className="auth-page flex min-h-screen items-center justify-center px-4 py-8">
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-[2rem] border-2 border-[#272332] bg-[#fffdf9] shadow-[10px_10px_0_#272332] md:grid-cols-[1.05fr_.95fr]">
+        <aside className="manga-dots relative hidden min-h-[620px] overflow-hidden border-r-2 border-[#272332] p-10 md:flex md:flex-col md:justify-between">
+          <div><span className="inline-block -rotate-2 border-2 border-[#272332] bg-[#fffdf9] px-3 py-1 text-xs font-black tracking-[.18em]">MORI DIARY</span></div>
+          <div className="relative z-10">
+            <p className="text-5xl font-black leading-[1.08] tracking-[-.06em] text-[#272332]">欢迎回来，<br />继续写你的<br /><span className="text-[#c92f61]">今日篇章。</span></p>
+            <p className="mt-5 max-w-xs text-sm leading-6 text-[#564d58]">不用写得完整。一个瞬间、一句话，也足够成为今天的坐标。</p>
+          </div>
+          <div className="absolute -bottom-16 -right-12 h-64 w-64 rotate-12 rounded-[42%] border-2 border-[#272332] bg-[#f7d774]" />
+        </aside>
+        <form onSubmit={handleSubmit} className="w-full space-y-5 p-6 text-[#272332] sm:p-10 md:p-12">
         <div>
-          <h1 className="text-2xl font-semibold">登录</h1>
-          <p className="mt-2 text-sm text-slate-400">进入你的 AI Diary</p>
+          <p className="mb-2 text-xs font-bold tracking-[.18em] text-[#c92f61]">WELCOME BACK</p>
+          <h1 className="text-3xl font-black tracking-[-.05em]">登录</h1>
+          <p className="mt-2 text-sm text-[#766d73]">回到只属于你的日记空间</p>
         </div>
 
-        <div className="flex rounded-xl border border-white/10 p-1 text-sm">
+        <div className="flex rounded-xl bg-[#eee8e3] p-1 text-sm">
           <button
             type="button"
             onClick={() => { setTab("password"); setError(""); }}
-            className={`flex-1 rounded-lg py-1.5 transition ${tab === "password" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}
+            className={`tap-button flex-1 rounded-lg px-3 py-2 transition ${tab === "password" ? "bg-[#272332] text-white" : "text-[#766d73] hover:text-[#272332]"}`}
           >
             账号登录
           </button>
           <button
             type="button"
             onClick={() => { setTab("sms"); setError(""); }}
-            className={`flex-1 rounded-lg py-1.5 transition ${tab === "sms" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"}`}
+            className={`tap-button flex-1 rounded-lg px-3 py-2 transition ${tab === "sms" ? "bg-[#272332] text-white" : "text-[#766d73] hover:text-[#272332]"}`}
           >
             手机登录
           </button>
@@ -98,9 +108,9 @@ export default function LoginPage() {
         {tab === "password" ? (
           <>
             <label className="block space-y-2 text-sm">
-              <span className="text-slate-300">用户名</span>
+              <span className="font-medium text-[#4c444c]">用户名</span>
               <input
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
+                className="field-input"
                 type="text"
                 autoComplete="username"
                 value={username}
@@ -109,11 +119,11 @@ export default function LoginPage() {
               />
             </label>
             <label className="block space-y-2 text-sm">
-              <span className="text-slate-300">密码</span>
+              <span className="font-medium text-[#4c444c]">密码</span>
               <input
-                className="input-mask w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
-                type="text"
-                autoComplete="off"
+                className="field-input"
+                type="password"
+                autoComplete="current-password"
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck={false}
@@ -126,9 +136,9 @@ export default function LoginPage() {
         ) : (
           <>
             <label className="block space-y-2 text-sm">
-              <span className="text-slate-300">手机号</span>
+              <span className="font-medium text-[#4c444c]">手机号</span>
               <input
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
+                className="field-input"
                 type="tel"
                 autoComplete="tel"
                 placeholder="请输入手机号"
@@ -138,10 +148,10 @@ export default function LoginPage() {
               />
             </label>
             <label className="block space-y-2 text-sm">
-              <span className="text-slate-300">验证码</span>
+              <span className="font-medium text-[#4c444c]">验证码</span>
               <div className="flex gap-2">
                 <input
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-white outline-none focus:border-accent-500"
+                  className="field-input"
                   type="text"
                   autoComplete="one-time-code"
                   placeholder="6位验证码"
@@ -154,7 +164,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleSendCode}
                   disabled={countdown > 0 || !phone}
-                  className="shrink-0 rounded-xl border border-white/10 px-3 py-2 text-sm text-slate-300 transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="tap-button shrink-0 rounded-xl border border-[#c9c0bd] px-3 py-2 text-sm text-[#4c444c] transition hover:bg-[#eee8e3] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {countdown > 0 ? `${countdown}s` : codeSent ? "重新发送" : "发送验证码"}
                 </button>
@@ -163,23 +173,24 @@ export default function LoginPage() {
           </>
         )}
 
-        {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+        {error ? <p role="alert" className="rounded-xl bg-[#ffe1e8] px-3 py-2 text-sm text-[#a61f4a]">{error}</p> : null}
 
         <button
-          className="w-full rounded-xl bg-accent-500 px-4 py-2 font-semibold text-white transition hover:bg-accent-400 disabled:cursor-not-allowed disabled:opacity-60"
+          className="tap-button w-full rounded-xl border-2 border-[#272332] bg-[#e34b78] px-4 py-2.5 font-bold text-white shadow-[4px_4px_0_#272332] transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_#272332] disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
           disabled={isSubmitting}
         >
           {isSubmitting ? "登录中..." : "登录"}
         </button>
 
-        <p className="text-center text-sm text-slate-400">
+        <p className="text-center text-sm text-[#766d73]">
           还没有账号？{" "}
-          <Link className="text-accent-400 hover:text-accent-300" href="/register">
+          <Link className="font-semibold text-[#c92f61] hover:underline" href="/register">
             注册
           </Link>
         </p>
-      </form>
+        </form>
+      </div>
     </main>
   );
 }

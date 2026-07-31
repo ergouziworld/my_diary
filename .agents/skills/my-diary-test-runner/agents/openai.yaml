@@ -1,0 +1,4 @@
+interface:
+  display_name: "My Diary Test Runner"
+  short_description: "Run the right validation checks for the my_diary Next.js app."
+  default_prompt: "Use this skill to validate the my_diary project after code changes."

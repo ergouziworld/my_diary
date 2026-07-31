@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
-  let body: { name?: unknown; email?: unknown; password?: unknown };
+  let body: { name?: unknown; username?: unknown; email?: unknown; password?: unknown };
 
   try {
     body = await request.json();
@@ -12,27 +12,32 @@ export async function POST(request: Request) {
   }
 
   const name = typeof body.name === "string" ? body.name.trim() : "";
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const usernameSource = typeof body.username === "string" ? body.username : body.email;
+  const username = typeof usernameSource === "string" ? usernameSource.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
 
-  if (!email || !password) {
-    return NextResponse.json({ ok: false, error: "Email and password are required." }, { status: 400 });
+  if (!username || !password) {
+    return NextResponse.json({ ok: false, error: "用户名和密码不能为空。" }, { status: 400 });
+  }
+
+  if (username.length > 64) {
+    return NextResponse.json({ ok: false, error: "用户名不能超过 64 个字符。" }, { status: 400 });
   }
 
   if (password.length < 6) {
-    return NextResponse.json({ ok: false, error: "Password must be at least 6 characters." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "密码至少需要 6 位。" }, { status: 400 });
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { email } });
+  const existingUser = await prisma.user.findUnique({ where: { email: username } });
   if (existingUser) {
-    return NextResponse.json({ ok: false, error: "Email already exists." }, { status: 409 });
+    return NextResponse.json({ ok: false, error: "用户名已存在。" }, { status: 409 });
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
   await prisma.user.create({
     data: {
       name: name || null,
-      email,
+      email: username,
       password: passwordHash
     }
   });

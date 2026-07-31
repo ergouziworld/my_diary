@@ -9,3 +9,7 @@ codex_ecs_deploy_8_141_104_133
 codex_ecs_deploy_8_141_104_133.pub
 *.db
 .claude/
+
+# android build artifacts
+android-webview/build/
+*.class

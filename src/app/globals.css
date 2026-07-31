@@ -29,17 +29,73 @@
 
 html, body {
   height: 100%;
+  background-color: #10101a;
   overflow-x: hidden;
   /* 关掉上下“橡皮筋”回弹——它会在滚到顶/底时带着固定壁纸抖动闪烁 */
   overscroll-behavior-y: none;
 }
 
 body {
-  background-color: #020617;
+  background-color: #10101a;
+  color: #f8f5f2;
+  font-family: "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  letter-spacing: 0.005em;
 }
 
+::selection { background: rgb(var(--accent-500) / .38); color: white; }
+
+.app-frame::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .2;
+  background-image: radial-gradient(circle, rgba(255,255,255,.18) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom, black, transparent 58%);
+}
+
+.auth-page {
+  background: #f5efe8;
+  color: #272332;
+}
+
+.manga-dots {
+  background-color: #f4a7ba;
+  background-image: radial-gradient(#752f4c 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.paper-card {
+  border: 2px solid #272332;
+  background: #fffdf9;
+  box-shadow: 7px 7px 0 #272332;
+}
+
+.field-input {
+  width: 100%;
+  min-height: 46px;
+  border: 1.5px solid #c9c0bd;
+  border-radius: 14px;
+  background: #fffdf9;
+  padding: 10px 13px;
+  color: #272332;
+  outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.field-input:focus {
+  border-color: #e34b78;
+  box-shadow: 0 0 0 3px rgba(227,75,120,.14);
+}
+
+.field-input::placeholder { color: #9d9491; }
+
+.tap-button { min-height: 44px; }
+
 /*
- * 壁纸背板：由 WallpaperProvider 渲染两层做淡入淡出（crossfade），切页不再生硬闪烁。
+ * 壁纸背板：切换前先预加载图片，再一次性替换单层背景，避免移动端闪黑。
  * 钉在视口、不随滚动移动；高度用 100lvh（恒定大视口高度）而非 inset:0，
  * 避免随移动端地址栏伸缩而 resize 导致居中图“换位置”；四周外扩 2px 盖住回弹露边。
  */
@@ -61,16 +117,6 @@ body {
   background-position: center;
   /* 各层尺寸由 background 自带：图片 contain 显示原图、渐变自动铺满 */
   transform: translateZ(0);
-}
-
-/* 新壁纸层淡入覆盖旧层 */
-.wp-layer-enter {
-  animation: wpFadeIn 320ms ease forwards;
-}
-
-@keyframes wpFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 @layer utilities {

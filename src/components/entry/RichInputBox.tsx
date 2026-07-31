@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useState, useRef, useTransition } from "react";
+import { convertToStaticImage } from "@/lib/imageUtils";
 
 type AttachmentItem = {
   id: string;
@@ -60,8 +62,9 @@ export function RichInputBox() {
     setUploading(true);
     setStatus("上传中...");
     try {
+      const uploadFile = file.type.startsWith("image/") ? await convertToStaticImage(file) : file;
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", uploadFile);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = (await res.json()) as { ok: boolean; data?: AttachmentItem; error?: string };
       if (data.ok && data.data) {
@@ -172,7 +175,13 @@ export function RichInputBox() {
               className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/55 px-3 py-2 text-xs text-slate-300"
             >
               {att.type === "image" ? (
-                <img src={att.url} alt="" className="h-7 w-7 rounded-lg object-cover shrink-0" />
+                <Image
+                  src={att.url}
+                  alt="待上传附件预览"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 shrink-0 rounded-lg object-cover"
+                />
               ) : (
                 <span className="text-base leading-none">{att.type === "link" ? "🔗" : "📄"}</span>
               )}

@@ -1,8 +1,5 @@
 import { Suspense } from "react";
-import { MetricCard } from "@/components/common/MetricCard";
-import { Panel } from "@/components/common/Panel";
-import { Pill } from "@/components/common/Pill";
-import { SectionHeader } from "@/components/common/SectionHeader";
+import { MetricCard, Panel, Pill, SectionHeader } from "@/components/common";
 import { listEntries } from "@/server/entries";
 
 export const dynamic = "force-dynamic";

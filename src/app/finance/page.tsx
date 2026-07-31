@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getUserId } from "@/lib/auth";
-import { SectionHeader } from "@/components/common/SectionHeader";
+import { SectionHeader } from "@/components/common";
 import { FinanceDashboard, type FinanceEntry } from "@/components/finance/FinanceDashboard";
 
 export const dynamic = "force-dynamic";

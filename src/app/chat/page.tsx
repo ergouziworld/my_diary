@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Panel } from "@/components/common/Panel";
-import { Pill } from "@/components/common/Pill";
-import { SectionHeader } from "@/components/common/SectionHeader";
+import { Panel, Pill, SectionHeader } from "@/components/common";
 
 const suggestions = [
   "我最近为什么焦虑？",

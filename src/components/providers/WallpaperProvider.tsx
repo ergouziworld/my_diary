@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -11,6 +11,11 @@ import {
 
 type WallpaperMap = Record<string, WallpaperValue>;
 type Layer = { id: number; background: string; overlay: string };
+type WallpaperContextValue = {
+  refreshWallpaper: () => Promise<void>;
+};
+
+const WallpaperContext = createContext<WallpaperContextValue | null>(null);
 
 const LS_MAP_KEY = "wp-map";
 const LS_UID_KEY = "wp-uid";
@@ -44,12 +49,19 @@ async function fetchWallpaperMap(): Promise<WallpaperMap> {
   }
 }
 
-function preloadImage(url: string) {
-  if (preloadedImages.has(url)) return;
-  const image = new Image();
-  image.decoding = "async";
-  image.onload = () => preloadedImages.add(url);
-  image.src = url;
+function preloadImage(url: string): Promise<void> {
+  if (preloadedImages.has(url)) return Promise.resolve();
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.decoding = "async";
+    const finish = () => {
+      preloadedImages.add(url);
+      resolve();
+    };
+    image.onload = finish;
+    image.onerror = finish;
+    image.src = url;
+  });
 }
 
 function preloadAllImages(map: WallpaperMap) {
@@ -70,6 +82,7 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
+  const applyVersionRef = useRef(0);
 
   const [layers, setLayers] = useState<Layer[]>(() => {
     // 优先用模块缓存（页内导航场景）
@@ -83,28 +96,41 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
       lastOverlay = wallpaper.overlay;
       return [{ id: ++layerSeq, background: wallpaper.background, overlay: wallpaper.overlay }];
     }
-    return [];
+    const wallpaper = getWallpaper(DEFAULT_WALLPAPER);
+    lastBackground = wallpaper.background;
+    lastOverlay = wallpaper.overlay;
+    return [{ id: ++layerSeq, background: wallpaper.background, overlay: wallpaper.overlay }];
   });
 
-  const applyFromMap = useCallback((path: string, map: WallpaperMap) => {
+  const applyFromMap = useCallback(async (path: string, map: WallpaperMap) => {
+    const version = ++applyVersionRef.current;
     const wallpaper = getWallpaper(map[path] ?? DEFAULT_WALLPAPER);
-    if (wallpaper.imageUrl) preloadImage(wallpaper.imageUrl);
+    if (wallpaper.imageUrl) await preloadImage(wallpaper.imageUrl);
+    if (version !== applyVersionRef.current) return;
 
     if (wallpaper.background === lastBackground && wallpaper.overlay === lastOverlay) return;
     lastBackground = wallpaper.background;
     lastOverlay = wallpaper.overlay;
 
-    setLayers((prev) => {
-      const base = prev.length ? [prev[prev.length - 1]] : [];
-      return [...base, { id: ++layerSeq, background: wallpaper.background, overlay: wallpaper.overlay }];
-    });
+    // 图片准备好后一次性替换，避免旧层/新层/深色 overlay 叠加造成移动端闪黑。
+    setLayers([{ id: ++layerSeq, background: wallpaper.background, overlay: wallpaper.overlay }]);
   }, []);
+
+  const refreshWallpaper = useCallback(async () => {
+    if (status !== "authenticated") return;
+    const map = await fetchWallpaperMap();
+    cachedMap = map;
+    cachedUserId = userId;
+    saveToLocalStorage(map, userId);
+    await applyFromMap(pathname, map);
+    preloadAllImages(map);
+  }, [applyFromMap, pathname, status, userId]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
 
     if (cachedMap && cachedUserId === userId) {
-      applyFromMap(pathname, cachedMap);
+      void applyFromMap(pathname, cachedMap);
       return;
     }
 
@@ -114,7 +140,7 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
       cachedMap = map;
       cachedUserId = userId;
       saveToLocalStorage(map, userId);
-      applyFromMap(pathname, map);
+      void applyFromMap(pathname, map);
       preloadAllImages(map);
     });
     return () => { cancelled = true; };
@@ -123,44 +149,43 @@ export function WallpaperProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status !== "authenticated") return;
 
-    function refresh() {
-      void fetchWallpaperMap().then((map) => {
-        cachedMap = map;
-        cachedUserId = userId;
-        saveToLocalStorage(map, userId);
-        applyFromMap(pathname, map);
-        preloadAllImages(map);
-      });
+    function handleStorageChange() {
+      void refreshWallpaper();
     }
 
-    window.addEventListener("wallpaperchange", refresh);
-    window.addEventListener("storage", refresh);
+    window.addEventListener("storage", handleStorageChange);
     return () => {
-      window.removeEventListener("wallpaperchange", refresh);
-      window.removeEventListener("storage", refresh);
+      window.removeEventListener("storage", handleStorageChange);
     };
-  }, [pathname, status, userId, applyFromMap]);
+  }, [refreshWallpaper, status]);
 
-  function handleEntered(id: number) {
-    setLayers((prev) => (prev.length > 1 ? prev.filter((layer) => layer.id >= id) : prev));
-  }
+  const contextValue = useMemo(
+    () => ({ refreshWallpaper }),
+    [refreshWallpaper],
+  );
 
   return (
-    <>
+    <WallpaperContext.Provider value={contextValue}>
       <div aria-hidden className="wp-backdrop">
-        {layers.map((layer, index) => {
-          const isTop = index === layers.length - 1;
+        {layers.map((layer) => {
           return (
             <div
               key={layer.id}
-              className={`wp-layer${isTop && layers.length > 1 ? " wp-layer-enter" : ""}`}
+              className="wp-layer"
               style={{ background: `${layer.overlay}, ${layer.background}, #020617` }}
-              onAnimationEnd={isTop ? () => handleEntered(layer.id) : undefined}
             />
           );
         })}
       </div>
       {children}
-    </>
+    </WallpaperContext.Provider>
   );
+}
+
+export function useWallpaper() {
+  const context = useContext(WallpaperContext);
+  if (!context) {
+    throw new Error("useWallpaper must be used within WallpaperProvider");
+  }
+  return context;
 }

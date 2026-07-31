@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     await sendSmsCode(phone, code);
   } catch (err) {
     console.error("[send-sms] error:", err);
+    await prisma.smsCode.deleteMany({ where: { phone, code } });
     return NextResponse.json({ error: "短信发送失败，请稍后重试" }, { status: 500 });
   }
 

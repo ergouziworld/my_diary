@@ -1,0 +1,15 @@
+
+> my_diary@0.11.0 dev
+> next dev --turbo --hostname 127.0.0.1 --port 3000
+
+   ▲ Next.js 15.5.18 (Turbopack)
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+Creating turbopack project { dir: 'D:\\github仓库\\my_diary', testMode: true }
+ ✓ Compiled middleware in 321ms
+ ✓ Ready in 2.4s
+[?25h

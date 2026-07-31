@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { SectionHeader } from "@/components/common/SectionHeader";
+import { SectionHeader } from "@/components/common";
 import { listTasks, type TaskRecord } from "@/server/tasks";
 import { TaskStatusButton } from "@/components/tasks/TaskStatusButton";
 

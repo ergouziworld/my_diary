@@ -1,9 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { HomeInputSection } from "@/components/entry/HomeInputSection";
 import { DeleteEntryButton } from "@/components/entry/DeleteEntryButton";
 import { SmallAiBox } from "@/components/entry/SmallAiBox";
-import { Panel } from "@/components/common/Panel";
-import { Pill } from "@/components/common/Pill";
+import { Panel, Pill } from "@/components/common";
 import { listEntries } from "@/server/entries";
 import type { EntryRecord } from "@/server/entries";
 
@@ -20,11 +20,11 @@ export default async function HomePage({
 
   return (
     <div className="space-y-5">
-      <div className="flex gap-1 rounded-2xl border border-white/10 bg-slate-950/55 p-1 w-fit">
+      <div className="flex w-fit gap-1 rounded-xl border border-white/10 bg-[#171723]/90 p-1">
         <Link
           href="/"
           className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
-            !isTimeline ? "bg-accent-500 text-white" : "text-slate-400 hover:text-white"
+            !isTimeline ? "bg-white text-[#272332]" : "text-slate-400 hover:text-white"
           }`}
         >
           概览
@@ -32,7 +32,7 @@ export default async function HomePage({
         <Link
           href="/?view=timeline"
           className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
-            isTimeline ? "bg-accent-500 text-white" : "text-slate-400 hover:text-white"
+            isTimeline ? "bg-white text-[#272332]" : "text-slate-400 hover:text-white"
           }`}
         >
           时间线
@@ -47,14 +47,26 @@ export default async function HomePage({
 
           <TodayStatus entries={entries} />
 
-          <Link
-            href="/world"
-            className="group relative block overflow-hidden rounded-[2rem] border border-accent-500/25 bg-[radial-gradient(ellipse_at_top_right,_rgb(var(--accent-500)_/_0.18),_transparent_60%),linear-gradient(135deg,_rgba(15,23,42,0.55),_rgba(2,6,23,0.55))] p-6 shadow-[0_0_50px_rgb(var(--accent-500)_/_0.08)] transition hover:border-accent-500/45"
+          <div className="grid gap-4 md:grid-cols-2">
+            <Link
+              href="/world"
+            className="group relative block overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#282237] p-6 shadow-[0_12px_30px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 hover:border-accent-400/50"
           >
-            <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent-400/80">3D · Memory World</p>
-            <h3 className="mt-2 text-xl font-semibold text-white">进入记忆世界 →</h3>
-            <p className="mt-1 text-sm text-slate-400">把日记走成一片可以漫步的风景。全屏沉浸，手机摇杆操作。</p>
-          </Link>
+            <span className="absolute -right-5 -top-8 text-8xl font-black text-white/[0.04]">星</span>
+            <p className="text-xs font-bold tracking-[0.16em] text-accent-300">记忆星球</p>
+            <h3 className="mt-2 text-xl font-bold tracking-[-0.03em] text-white">去看看最近留下的风景 →</h3>
+            <p className="mt-1 text-sm text-slate-400">你的文字会在这里慢慢长成一片世界。</p>
+            </Link>
+
+            <Link
+              href="/memory"
+              className="group relative block overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,_rgba(15,23,42,0.72),_rgba(2,6,23,0.6))] p-6 transition hover:border-accent-500/45"
+            >
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Memory IDE · Inspect</p>
+              <h3 className="mt-2 text-xl font-semibold text-white">查看记忆控制台 →</h3>
+              <p className="mt-1 text-sm text-slate-400">查看模型状态、记忆存储，以及每次检索实际召回的内容。</p>
+            </Link>
+          </div>
 
           <SmallAiBox />
 
@@ -86,20 +98,18 @@ function TodayStatus({ entries }: { entries: EntryRecord[] }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-white/10 bg-slate-950/55 px-5 py-3.5 text-sm text-slate-300">
-      <span>📖 已记录 <b className="font-semibold text-white">{total}</b> 篇</span>
-      <span className="text-slate-600">·</span>
+    <div className="grid grid-cols-3 overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#171723]/90 text-sm text-slate-300">
+      <span className="px-4 py-4 text-center">记录 <b className="ml-1 font-bold text-white">{total}</b></span>
       {streak > 0 ? (
-        <span>🔥 连续 <b className="font-semibold text-accent-400">{streak}</b> 天</span>
+        <span className="border-x border-white/10 px-4 py-4 text-center">连续 <b className="ml-1 font-bold text-accent-300">{streak}</b> 天</span>
       ) : (
-        <span>✍️ 今天还没记，写一条吧</span>
+        <span className="border-x border-white/10 px-4 py-4 text-center text-slate-400">今天待记录</span>
       )}
-      <span className="text-slate-600">·</span>
-      <span>
+      <span className="px-4 py-4 text-center">
         {pending > 0 ? (
-          <>✅ 还有 <b className="font-semibold text-white">{pending}</b> 件待办</>
+          <>待办 <b className="ml-1 font-bold text-white">{pending}</b></>
         ) : (
-          "🎉 待办都清空了"
+          "待办清空"
         )}
       </span>
     </div>
@@ -131,7 +141,7 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
         </Link>
       </div>
       <div className="space-y-4">
-        {recentItems.length ? (
+        {recentItems.length ?
           recentItems.map((item) => (
             <article key={item.id} className="rounded-2xl border border-white/10 bg-slate-950/55 p-4 space-y-3">
               <div className="flex items-center justify-between gap-3">
@@ -151,7 +161,14 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
               {item.images.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {item.images.slice(0, 4).map((img) => (
-                    <img key={img.id} src={img.fileUrl} alt="" className="h-20 w-20 rounded-xl object-cover" />
+                    <Image
+                      key={img.id}
+                      src={img.fileUrl}
+                      alt="日记附件图片"
+                      width={80}
+                      height={80}
+                      className="h-20 w-20 rounded-xl object-cover"
+                    />
                   ))}
                   {item.images.length > 4 && (
                     <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/10 bg-slate-950/55 text-sm text-slate-400">
@@ -163,12 +180,12 @@ function RecentEntries({ entries }: { entries: EntryRecord[] }) {
 
               {item.summary && (
                 <p className="border-t border-white/5 pt-3 text-xs text-slate-500 leading-relaxed break-words">
-                  AI · {item.summary}
+                  摘要 · {item.summary}
                 </p>
               )}
             </article>
           ))
-        ) : (
+        : (
           <p className="text-sm text-slate-400">还没有记录，先去写一条吧。</p>
         )}
       </div>

@@ -4,10 +4,11 @@ import { RichInputBox } from "./RichInputBox";
 
 export function HomeInputSection() {
   return (
-    <div className="flex h-[32rem] flex-col overflow-anchor-none rounded-[2rem] border border-accent-500/20 bg-[radial-gradient(ellipse_at_top_left,_rgb(var(--accent-500)_/_0.09),_transparent_55%),linear-gradient(180deg,_rgba(2,6,23,0.58),_rgba(15,23,42,0.5))] p-6 shadow-[0_0_60px_rgb(var(--accent-500)_/_0.06),inset_0_1px_0_rgba(255,255,255,0.05)]">
+    <div className="relative flex h-[28rem] flex-col overflow-hidden overflow-anchor-none rounded-[1.6rem] border border-white/10 bg-[#171723]/95 p-5 shadow-[0_12px_30px_rgba(0,0,0,0.2)] sm:h-[30rem] sm:p-6">
+      <span className="absolute right-5 top-4 -rotate-3 rounded-md bg-[#f7d774] px-2 py-1 text-[10px] font-bold tracking-wider text-[#403713]">TODAY</span>
       <div className="mb-4 shrink-0">
-        <h2 className="text-2xl font-semibold text-white">今天</h2>
-        <p className="mt-0.5 text-sm text-slate-500">支持图片 · 文档 · 链接</p>
+        <h2 className="text-xl font-bold tracking-[-0.03em] text-white sm:text-2xl">今天想记点什么？</h2>
+        <p className="mt-1 text-sm text-slate-500">文字、图片或一段突然冒出的想法</p>
       </div>
       <RichInputBox />
     </div>

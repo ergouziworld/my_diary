@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "website.bocchi.app",
+        "sha256_cert_fingerprints": ["CD:22:1D:3F:29:77:C2:1B:D6:C9:DC:15:D7:78:9B:EE:78:62:72:76:1A:42:ED:A6:2D:4D:7B:FC:DF:F8:96:1F"]
+      }
+    }]

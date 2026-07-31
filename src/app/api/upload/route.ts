@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getUserId } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isAllowedUploadMimeType } from "@/lib/uploadPolicy";
 
 export const runtime = "nodejs";
 
@@ -120,6 +121,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "文件最大 10MB" }, { status: 400 });
   }
 
+  if (!isAllowedUploadMimeType(file.type)) {
+    return NextResponse.json(
+      { ok: false, error: "Unsupported file type" },
+      { status: 415 },
+    );
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   const mimeType = file.type || "application/octet-stream";
@@ -142,7 +150,6 @@ export async function POST(req: Request) {
     description = await describeImage(buffer.toString("base64"), mimeType);
   } else if (isPdf) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
       const { text } = await pdfParse(buffer);
       description = await summarizeText(text, file.name);

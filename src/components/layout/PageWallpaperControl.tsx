@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
 import {
   DEFAULT_WALLPAPER,
@@ -9,6 +10,8 @@ import {
   imageWallpaperValue,
   type WallpaperValue
 } from "@/lib/wallpapers";
+import { convertToStaticImage } from "@/lib/imageUtils";
+import { useWallpaper } from "@/components/providers/WallpaperProvider";
 
 type WallpaperMap = Record<string, WallpaperValue>;
 type WallpaperImage = { id: string; url: string; size: number | null };
@@ -50,10 +53,12 @@ export function PageWallpaperControl() {
   const pathname = usePathname();
   const { status } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { refreshWallpaper } = useWallpaper();
 
   const [open, setOpen] = useState(false);
   const [wallpaperMap, setWallpaperMap] = useState<WallpaperMap>({});
   const [images, setImages] = useState<WallpaperImage[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [status_, setStatus] = useState("");
 
   useEffect(() => {
@@ -71,8 +76,11 @@ export function PageWallpaperControl() {
   useEffect(() => {
     if (status !== "authenticated" || !open) return;
     let cancelled = false;
+    setImagesLoading(true);
     void loadWallpaperImages().then((list) => {
       if (!cancelled) setImages(list);
+    }).finally(() => {
+      if (!cancelled) setImagesLoading(false);
     });
     return () => {
       cancelled = true;
@@ -95,7 +103,7 @@ export function PageWallpaperControl() {
       setStatus("保存失败，请重试");
       return;
     }
-    window.dispatchEvent(new Event("wallpaperchange"));
+    await refreshWallpaper();
     setStatus(value === null ? "已恢复默认" : "壁纸已更新");
   }
 
@@ -105,9 +113,10 @@ export function PageWallpaperControl() {
       return;
     }
     setStatus("正在上传…");
-    const formData = new FormData();
-    formData.append("file", file);
     try {
+      const uploadFile = await convertToStaticImage(file);
+      const formData = new FormData();
+      formData.append("file", uploadFile);
       const res = await fetch("/api/wallpapers/upload", { method: "POST", body: formData });
       const data = (await res.json()) as { ok?: boolean; error?: string; data?: { url?: string } };
       const url = data.data?.url;
@@ -138,7 +147,7 @@ export function PageWallpaperControl() {
       setImages((list) => list.filter((item) => item.id !== image.id));
       // 删除接口已清掉用到它的页面壁纸设置，这里同步刷新当前页
       setWallpaperMap(await loadServerWallpaperMap());
-      window.dispatchEvent(new Event("wallpaperchange"));
+      await refreshWallpaper();
       setStatus("已删除");
     } catch {
       setStatus("删除失败");
@@ -189,7 +198,11 @@ export function PageWallpaperControl() {
             上传图片作为本页壁纸
           </button>
 
-          {images.length > 0 && (
+          {imagesLoading ? (
+            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-4 text-center text-xs text-slate-400">
+              正在加载壁纸…
+            </div>
+          ) : images.length > 0 ? (
             <div className="mt-3">
               <div className="mb-2 text-xs font-medium text-slate-300">我的壁纸图片</div>
               <div className="grid grid-cols-3 gap-2">
@@ -205,8 +218,13 @@ export function PageWallpaperControl() {
                           active ? "border-accent-500" : "border-white/10 hover:border-white/25"
                         }`}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={image.url} alt="" className="h-14 w-full object-cover" loading="lazy" />
+                        <Image
+                          src={image.url}
+                          alt="壁纸预览"
+                          width={176}
+                          height={56}
+                          className="h-14 w-full object-cover"
+                        />
                       </button>
                       <button
                         type="button"
@@ -221,7 +239,7 @@ export function PageWallpaperControl() {
                 })}
               </div>
             </div>
-          )}
+          ) : null}
 
           <div className="mb-2 mt-3 text-xs font-medium text-slate-300">预设</div>
           <div className="grid grid-cols-2 gap-2">

@@ -1,7 +1,5 @@
 import { Suspense } from "react";
-import { Panel } from "@/components/common/Panel";
-import { Pill } from "@/components/common/Pill";
-import { SectionHeader } from "@/components/common/SectionHeader";
+import { Panel, Pill, SectionHeader } from "@/components/common";
 import { listEntries } from "@/server/entries";
 
 export const dynamic = "force-dynamic";
